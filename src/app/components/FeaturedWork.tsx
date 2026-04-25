@@ -7,9 +7,9 @@ import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 
 const featured = [
-    { id: 1, title: "Hivernal Del Bages", category: "Videography", image: "/tonicamacho/hivernal.png" },
-    { id: 2, title: "Rally Lloret de Mar", category: "Motorsport", image: "/tonicamacho/lloret.jpg" },
-    { id: 3, title: "Hotel La Sagrera", category: "Photography", image: "/tonicamacho/sagrera2.jpg" },
+    { id: 1, title: "Hivernal Del Bages", category: "Videography", image: "/hivernal.png" },
+    { id: 2, title: "Rally Lloret de Mar", category: "Motorsport", image: "/lloret.jpg" },
+    { id: 3, title: "Hotel La Sagrera", category: "Photography", image: "/sagrera2.jpg" },
 ];
 
 export default function FeaturedWork() {

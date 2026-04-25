@@ -53,7 +53,7 @@ export default function About() {
                             <div className="relative w-full h-full rounded-full overflow-hidden border border-[#863ecc]/30">
                                 <div className="absolute inset-0 bg-[#863ecc]/10 group-hover:bg-transparent transition-colors duration-500 z-10" />
                                 <Image
-                                    src="/tonicamacho/PERFIL.png"
+                                    src="/PERFIL.png"
                                     alt="Toni Camacho"
                                     fill
                                     className="object-cover"

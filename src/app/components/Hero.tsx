@@ -11,7 +11,7 @@ export default function Hero() {
             {/* Background Animated Elements */}
             <div className="absolute inset-0 z-0">
                 <Image
-                    src="/tonicamacho/_DSC5222.jpg"
+                    src="/_DSC5222.jpg"
                     alt="Background Texture"
                     fill
                     className="object-cover opacity-20"
