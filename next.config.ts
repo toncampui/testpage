@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   output: 'export', // Aquesta línia és obligatòria per a GitHub Pages
-  //basePath: '/tonicamacho',
+  basePath: '/tonicamacho',
   images: {
     unoptimized: true, // Necessari si fas servir imatges i exportació estàtica
     remotePatterns: [
