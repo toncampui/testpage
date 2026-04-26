@@ -11,7 +11,7 @@ export default function Footer() {
 
                     <div className="flex flex-col items-center md:items-start">
                         <p className="text-gray-600 text-[10px] uppercase tracking-[0.4em] mb-2">
-                            © 2026 TONICAMACHO.PR
+                            © 2026 TONICAMACHO.PRO
                         </p>
                         <Link href="/legal" className="text-xs text-gray-600 hover:text-[#863ecc] transition-colors">
                             Legal & Privacy Policy
