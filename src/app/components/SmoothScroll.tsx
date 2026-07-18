@@ -4,8 +4,6 @@ import { ReactLenis } from "lenis/react";
 import { ReactNode } from "react";
 
 export default function SmoothScroll({ children }: { children: ReactNode }) {
-    // La clau és no forçar Lenis en mòbil si no és necessari,
-    // i eliminar totalment el listener manual de 'touchmove'.
 
     return (
         <ReactLenis
