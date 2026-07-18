@@ -46,9 +46,9 @@ export default function ServicesPage() {
     const SERVICES = t.services.list.map((item, idx) => {
         const images = [
             "https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1200&auto=format&fit=crop",
-            "/lloret.jpg",
-            "/sagrera.jpg",
-            "/xerif.jpg",
+            "/testpage/lloret.jpg",
+            "/testpage/sagrera.jpg",
+            "/testpage/xerif.jpg",
             "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1200&auto=format&fit=crop",
         ];
         return {
@@ -386,9 +386,8 @@ export default function ServicesPage() {
                                         position: "relative",
                                         zIndex: isActive ? 50 : 10 + index,
                                     }}
-                                    className={`bg-black border-t border-white/10 ${
-                                        isActive ? "expanded" : "collapsed"
-                                    }`}
+                                    className={`bg-black border-t border-white/10 ${isActive ? "expanded" : "collapsed"
+                                        }`}
                                 >
                                     <div
                                         style={{
@@ -405,19 +404,16 @@ export default function ServicesPage() {
                                             onClick={() => handleMobileItemClick(index)}
                                             className="px-5 py-4 flex items-center gap-3 w-full text-left focus:outline-none bg-transparent border-0 cursor-pointer"
                                         >
-                                            <span className={`text-[10px] font-mono uppercase tracking-widest shrink-0 text-left w-[75px] ${
-                                                isActive ? "text-[#863ecc]" : "text-white/40"
-                                            }`}>
+                                            <span className={`text-[10px] font-mono uppercase tracking-widest shrink-0 text-left w-[75px] ${isActive ? "text-[#863ecc]" : "text-white/40"
+                                                }`}>
                                                 [ 0{index + 1} ] -
                                             </span>
-                                            <span className={`font-black uppercase tracking-tight leading-tight flex-1 transition-all duration-300 ${
-                                                isActive ? "text-[1.25rem] text-white" : "text-sm text-white/50"
-                                            }`}>
+                                            <span className={`font-black uppercase tracking-tight leading-tight flex-1 transition-all duration-300 ${isActive ? "text-[1.25rem] text-white" : "text-sm text-white/50"
+                                                }`}>
                                                 {service.title.toUpperCase()}
                                             </span>
-                                            <span className={`shrink-0 w-1.5 h-1.5 rounded-full bg-[#863ecc] shadow-[0_0_8px_#863ecc] transition-opacity duration-300 ${
-                                                isActive ? "opacity-100" : "opacity-0"
-                                            }`} />
+                                            <span className={`shrink-0 w-1.5 h-1.5 rounded-full bg-[#863ecc] shadow-[0_0_8px_#863ecc] transition-opacity duration-300 ${isActive ? "opacity-100" : "opacity-0"
+                                                }`} />
                                         </button>
 
                                         {/* Description — expands/collapses as item snaps into view */}
