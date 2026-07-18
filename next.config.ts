@@ -7,7 +7,6 @@ const nextConfig: NextConfig = {
     unoptimized: true, // Necessari si fas servir imatges i exportació estàtica
     remotePatterns: [
       {
-        protocol: "https",
         hostname: "images.unsplash.com",
       },
     ],

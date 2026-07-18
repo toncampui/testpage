@@ -2,10 +2,12 @@
 
 @theme {
   --color-brand-cyan: #863ecc;
+  --color-brand-violet: #863ecc;
+  --color-brand-purple: #863ecc;
   --color-background-deep: #000000;
   --color-surface: #0a0a0a;
   --color-surface-lighter: #141414;
-  --font-sans: "Inter", var(--font-geist-sans), sans-serif;
+  --font-sans: var(--font-inter), sans-serif;
   --animate-float: float 6s ease-in-out infinite;
 }
 
@@ -71,4 +73,13 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #333;
+}
+
+/* Hide scrollbar utility class */
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
 }

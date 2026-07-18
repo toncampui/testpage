@@ -18,7 +18,7 @@ export default function FeaturedWork() {
             <div className="container px-6 mx-auto">
                 <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
                     <div>
-                        <h2 className="text-[#863ecc]- uppercase tracking-[0.3em] text-sm font-semibold mb-6">
+                        <h2 className="text-[#863ecc] uppercase tracking-[0.3em] text-sm font-semibold mb-6">
                             Featured Work
                         </h2>
                         <h3 className="text-4xl md:text-5xl font-bold">

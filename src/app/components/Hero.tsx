@@ -1,11 +1,12 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowDown } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useLanguage } from "../context/LanguageContext";
 
 export default function Hero() {
+    const { language } = useLanguage();
     return (
         <section className="relative h-screen flex flex-col items-center justify-center overflow-hidden bg-black">
             {/* Background Animated Elements */}
@@ -28,13 +29,13 @@ export default function Hero() {
                     transition={{ duration: 1, ease: "easeOut" }}
                 >
                     <h2 className="text-[#863ecc] uppercase tracking-[0.3em] text-sm font-semibold mb-6">
-                        Visual Creator
+                        {language === "en" ? "Visual Creator" : "Creador Visual"}
                     </h2>
                     <h1 className="text-6xl md:text-8xl font-black mb-8 tracking-tighter">
                         TONI CAMACHO
                     </h1>
                     <p className="text-xl md:text-2xl text-gray-400 max-w-2xl mx-auto mb-12 font-light tracking-wide">
-                        Photography | Video | 3D
+                        {language === "en" ? "Photography | Video | 3D" : "Fotografia | Vídeo | 3D"}
                     </p>
                 </motion.div>
 
@@ -42,13 +43,18 @@ export default function Hero() {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 1, duration: 1 }}
+                    className="flex flex-col items-center gap-6"
                 >
-                    <div
-                        className="group relative inline-block px-8 py-4 bg-[#863ecc] text-white font-bold uppercase tracking-widest text-xs transition-all hover:bg-white hover:text-black overflow-hidden cursor-default"
+
+                    <Link
+                        href="/services"
+                        className="group relative inline-block px-8 py-4 bg-[#863ecc] text-white font-bold uppercase tracking-widest text-xs transition-all hover:bg-white hover:text-black overflow-hidden cursor-pointer"
                     >
-                        <span className="relative z-10">Website under construction...</span>
+                        <span className="relative z-10 block transition-colors group-hover:text-black">
+                            {language === "en" ? "Discover my services" : "Descobreix els meus serveis"}
+                        </span>
                         <div className="absolute inset-0 bg-white transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300" />
-                    </div>
+                    </Link>
                 </motion.div>
             </div>
 

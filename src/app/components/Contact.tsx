@@ -5,7 +5,10 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Instagram, Linkedin, Send, ExternalLink } from "lucide-react";
 
+import { useLanguage } from "../context/LanguageContext";
+
 export default function Contact() {
+    const { language, t } = useLanguage();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
     const [isError, setIsError] = useState(false);
@@ -33,7 +36,7 @@ export default function Contact() {
             } else {
                 setIsError(true);
             }
-        } catch (error) {
+        } catch {
             setIsError(true);
         } finally {
             setIsSubmitting(false);
@@ -41,19 +44,23 @@ export default function Contact() {
     }
 
     return (
-        <section id="contact" className="py-24 bg-black border-t border-white/5">
+        <section id="contact" className="pt-24 pb-12 bg-black border-t border-white/5">
             <div className="container px-6 mx-auto">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
 
                     <div>
                         <h2 className="text-[#863ecc] uppercase tracking-[0.3em] text-sm font-semibold mb-6">
-                            Get in Touch
+                            {t.contact.title}
                         </h2>
                         <h3 className="text-4xl md:text-5xl font-bold mb-8">
-                            Let&apos;s create something <span className="text-[#863ecc]">unforgettable</span>.
+                            {language === "en" ? (
+                                <>Let&apos;s create something <span className="text-[#863ecc]">unforgettable</span>.</>
+                            ) : (
+                                <>Explica&apos;m el teu <span className="text-[#863ecc]">projecte</span>.</>
+                            )}
                         </h3>
                         <p className="text-gray-400 text-lg mb-12 max-w-md">
-                            Available for freelance opportunities and creative collaborations worldwide.
+                            {t.contact.desc}
                         </p>
 
                         <div className="space-y-6">
@@ -85,44 +92,44 @@ export default function Contact() {
                                 <div className="p-4 bg-[#863ecc]/10 rounded-full mb-2">
                                     <Send size={32} className="text-[#863ecc]" />
                                 </div>
-                                <h4 className="text-2xl font-bold text-white">Message Sent!</h4>
-                                <p className="text-[#863ecc] text-lg font-medium">Message received! I&apos;ll get back to you soon.</p>
+                                <h4 className="text-2xl font-bold text-white">{t.contact.successTitle}</h4>
+                                <p className="text-[#863ecc] text-lg font-medium">{t.contact.successDesc}</p>
                             </motion.div>
                         ) : (
                             <form onSubmit={handleSubmit} className="space-y-6">
                                 <div className="space-y-2">
-                                    <label className="text-[10px] uppercase tracking-widest text-gray-500">Name</label>
+                                    <label className="text-[10px] uppercase tracking-widest text-gray-500">{t.contact.labelName}</label>
                                     <input
                                         type="text"
                                         name="name"
                                         required
                                         className="w-full bg-transparent border-b border-white/10 py-4 focus:border-brand-violet outline-none transition-colors"
-                                        placeholder="Your Name"
+                                        placeholder={t.contact.placeholderName}
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-[10px] uppercase tracking-widest text-gray-500">Email</label>
+                                    <label className="text-[10px] uppercase tracking-widest text-gray-500">{t.contact.labelEmail}</label>
                                     <input
                                         type="email"
                                         name="email"
                                         required
                                         className="w-full bg-transparent border-b border-white/10 py-4 focus:border-brand-violet outline-none transition-colors"
-                                        placeholder="your@email.com"
+                                        placeholder={t.contact.placeholderEmail}
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-[10px] uppercase tracking-widest text-gray-500">Message</label>
+                                    <label className="text-[10px] uppercase tracking-widest text-gray-500">{t.contact.labelMsg}</label>
                                     <textarea
                                         name="message"
                                         required
                                         rows={4}
                                         className="w-full bg-transparent border-b border-white/10 py-4 focus:border-brand-violet outline-none transition-colors resize-none"
-                                        placeholder="Tell me about your project"
+                                        placeholder={t.contact.placeholderMsg}
                                     />
                                 </div>
 
                                 {isError && (
-                                    <p className="text-red-500 text-sm mt-2">Oops! There was a problem. Please try again.</p>
+                                    <p className="text-red-500 text-sm mt-2">{t.contact.error}</p>
                                 )}
 
                                 <button
@@ -130,7 +137,7 @@ export default function Contact() {
                                     disabled={isSubmitting}
                                     className="w-full bg-brand-violet text-white font-bold uppercase tracking-widest py-5 hover:bg-white hover:text-black transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
-                                    {isSubmitting ? "Sending..." : "Send Message"}
+                                    {isSubmitting ? t.contact.btnSending : t.contact.btnSend}
                                 </button>
                             </form>
                         )}

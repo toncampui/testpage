@@ -2,10 +2,12 @@
 
 import { Instagram, Linkedin, Send } from "lucide-react";
 import Link from "next/link";
+import { useLanguage } from "../context/LanguageContext";
 
 export default function Footer() {
+    const { language } = useLanguage();
     return (
-        <footer className="py-12 bg-black border-t border-white/5">
+        <footer className="relative z-10 pt-8 pb-10 bg-black border-t border-white/5">
             <div className="container px-6 mx-auto">
                 <div className="flex flex-col md:flex-row justify-between items-center gap-8">
 
@@ -14,7 +16,7 @@ export default function Footer() {
                             © 2026 TONICAMACHO.PRO
                         </p>
                         <Link href="/legal" className="text-xs text-gray-600 hover:text-[#863ecc] transition-colors">
-                            Legal & Privacy Policy
+                            {language === "en" ? "Legal & Privacy Policy" : "Avís Legal i Privacitat"}
                         </Link>
                     </div>
 
@@ -31,7 +33,9 @@ export default function Footer() {
                     </div>
 
                     <p className="text-gray-600 text-[9px] uppercase tracking-[0.2em] italic text-center md:text-right">
-                        Visual Creator | Photography | 3D | Video
+                        {language === "en"
+                            ? "Visual Creator | Photography | 3D | Video"
+                            : "Creador Visual | Fotografia | 3D | Vídeo"}
                     </p>
                 </div>
             </div>
