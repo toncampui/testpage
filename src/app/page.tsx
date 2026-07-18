@@ -89,7 +89,7 @@ export default function Home() {
                         className="w-full md:w-[40%] aspect-[3/4] relative rounded-3xl overflow-hidden border border-white/10 shadow-2xl bg-neutral-900 group"
                     >
                         <Image
-                            src="/about_portrait.png"
+                            src="/testpage/about_portrait.png"
                             alt="Toni Camacho - Visual Creator"
                             fill
                             className="object-cover transition-transform duration-1000 group-hover:scale-105"
