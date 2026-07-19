@@ -43,6 +43,6 @@
 
 .contentInner {
   min-height: 0;
-  padding: 16px 20px 24px 84px; /* pl-[calc(60px+1.25rem+0.75rem)] */
+  padding: 8px 20px 20px 84px; /* pl-[calc(60px+1.25rem+0.75rem)] and 20px space below description */
 }
 

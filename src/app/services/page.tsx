@@ -306,7 +306,7 @@ export default function ServicesPage() {
                  • Description lives OUTSIDE the sticky div so expansion pushes
                    subsequent headers down naturally (correct stacking geometry)
                  • Image crossfades on every openIndex change (click-driven)       */}
-            <section className="md:hidden w-full bg-black relative">
+            <section className="md:hidden w-full bg-black relative flex flex-col items-start justify-start h-auto m-0 p-0 overflow-visible">
 
                 {/* ① Sticky image — sticks at top while user reads accordion */}
                 <div
