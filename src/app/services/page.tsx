@@ -72,7 +72,7 @@ function MobileRevealItem({
                 });
             },
             {
-                rootMargin: "-10% 0px -70% 0px",
+                rootMargin: "200px 0px -20% 0px",
                 threshold: 0,
             }
         );
