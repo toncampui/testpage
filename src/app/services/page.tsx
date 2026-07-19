@@ -526,7 +526,7 @@ export default function ServicesPage() {
             {/* Technical Capabilities Stacking Cards Section */}
             <section
                 ref={techContainerRef}
-                className="relative z-20 w-full bg-black border-t border-white/5 pb-24 md:pb-32"
+                className="relative z-20 w-full bg-black border-t border-white/5 pb-48 md:pb-64"
             >
                 {/* Sticky Header */}
                 <div className="sticky top-[64px] z-30 pt-8 pb-6 bg-black text-center px-6 mb-4">
@@ -550,7 +550,7 @@ export default function ServicesPage() {
                                     height: "auto",
                                     marginTop: index === 0 ? "48px" : undefined,
                                 }}
-                                className={`w-full bg-black flex flex-col justify-start select-none py-6 ${index === 0 ? "pb-24 mb-12" : index === TECHNICAL_SERVICES.length - 1 ? "mb-0" : "mb-12"}`}
+                                className={`w-full bg-black flex flex-col justify-start select-none py-6 mb-12 md:mb-16 ${index === 0 ? "pb-24" : ""}`}
                             >
                                 {/* Panel Header */}
                                 <div className="flex items-center justify-between w-full pb-3 border-b border-white/10">
