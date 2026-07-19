@@ -521,12 +521,13 @@ export default function ServicesPage() {
                 <div
                     style={{
                         paddingTop: "0px",
-                        marginTop: "-60px"
+                        marginTop: "0px",
+                        transform: "translateY(-30px)",
                     }}
                     className="sticky top-[64px] pb-6 bg-black z-30 text-center px-6 mb-4"
                 >
                     <h2
-                        style={{ lineHeight: "0.9" }}
+                        style={{ lineHeight: "0.8", marginTop: "0px", paddingTop: "0px", display: "block" }}
                         className="text-3xl md:text-5xl font-black tracking-tight uppercase mb-4 text-white"
                     >
                         {t.services.title}
