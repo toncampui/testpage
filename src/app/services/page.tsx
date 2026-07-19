@@ -527,7 +527,7 @@ export default function ServicesPage() {
             <section
                 ref={techContainerRef}
                 style={{ backgroundColor: "#000000" }}
-                className="relative z-20 w-full bg-[#000000] border-t border-white/5 pb-48 md:pb-64"
+                className="relative z-20 w-full bg-[#000000] border-t border-white/5 pb-30 md:pb-64"
             >
                 {/* Sticky Header */}
                 <div
