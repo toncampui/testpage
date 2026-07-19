@@ -544,7 +544,7 @@ export default function ServicesPage() {
 
                 <div
                     style={{ backgroundColor: "#000000" }}
-                    className="w-full max-w-5xl mx-auto flex flex-col px-6 sm:px-12 md:px-16 bg-[#000000] pt-6"
+                    className="relative w-full max-w-5xl mx-auto flex flex-col px-6 sm:px-12 md:px-16 bg-[#000000] pt-6"
                 >
                     {TECHNICAL_SERVICES.map((tech, index) => {
                         return (
@@ -552,12 +552,12 @@ export default function ServicesPage() {
                                 key={tech.id}
                                 style={{
                                     position: "sticky",
-                                    top: `${220 + index * 24}px`,
+                                    top: "220px",
                                     zIndex: 10 + index,
                                     height: "auto",
                                     backgroundColor: "#000000",
                                 }}
-                                className={`w-full bg-[#000000] flex flex-col justify-start select-none py-6 mb-12 md:mb-16 ${index === 0 ? "pb-24 mt-4" : ""}`}
+                                className="w-full bg-[#000000] flex flex-col justify-start select-none py-6 mb-12 md:mb-16"
                             >
                                 {/* Panel Header */}
                                 <div className="flex items-center justify-between w-full pb-3 border-b border-white/10">
