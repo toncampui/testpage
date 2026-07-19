@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useEffect, useLayoutEffect } from "react";
+import { useRef, useState, useEffect } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "../context/LanguageContext";
@@ -27,21 +27,15 @@ export default function ServicesPage() {
     const containerRef = useRef<HTMLDivElement>(null);
     const techContainerRef = useRef<HTMLDivElement>(null);
     const [activeIndex, setActiveIndex] = useState(0);
+    const [mobileActiveIndex, setMobileActiveIndex] = useState(0);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [activeTechIndex, setActiveTechIndex] = useState(0);
-    const [isMobile, setIsMobile] = useState(false);
     const isScrollingRef = useRef(false);
     const prevDeltaYRef = useRef(0);
     const resetDeltaTimerRef = useRef<NodeJS.Timeout | null>(null);
     const mobileSectionRef = useRef<HTMLDivElement>(null);
     const isClickScrollingRef = useRef(false);
     const [desktopParallaxY, setDesktopParallaxY] = useState(0);
-
-    useEffect(() => {
-        const checkMobile = () => setIsMobile(window.innerWidth < 768);
-        checkMobile();
-        window.addEventListener("resize", checkMobile);
-        return () => window.removeEventListener("resize", checkMobile);
-    }, []);
 
     const SERVICES = t.services.list.map((item, idx) => {
         const images = [
@@ -261,22 +255,6 @@ export default function ServicesPage() {
         }
     };
 
-    const handleTechClick = (index: number) => {
-        const elements = document.querySelectorAll("[data-tech-item]");
-        const targetEl = elements[index];
-        if (typeof window !== "undefined" && targetEl) {
-            const scrollTop = window.scrollY;
-            const rect = targetEl.getBoundingClientRect();
-            const elementCenter = scrollTop + rect.top + rect.height / 2;
-            const viewportCenter = window.innerHeight / 2;
-            const scrollTarget = elementCenter - viewportCenter;
-
-            window.scrollTo({
-                top: scrollTarget,
-                behavior: "smooth"
-            });
-        }
-    };
     const handleMobileItemClick = (index: number) => {
         if (typeof window !== "undefined" && mobileSectionRef.current) {
             isClickScrollingRef.current = true;
@@ -298,8 +276,6 @@ export default function ServicesPage() {
             }, 800);
         }
     };
-    // ── Mobile scroll-driven accordion index state ───────────────────────
-    const [mobileActiveIndex, setMobileActiveIndex] = useState(0);
 
     return (
         <main className="min-h-screen relative bg-black text-white selection:bg-[#863ecc] selection:text-black">
