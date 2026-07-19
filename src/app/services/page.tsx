@@ -27,20 +27,18 @@ interface MobileRevealItemProps {
     service: any;
     index: number;
     parentActiveIndex: number;
-    setActiveIndex: (index: number) => void;
 }
 
 function MobileRevealItem({
     service,
     index,
     parentActiveIndex,
-    setActiveIndex,
 }: MobileRevealItemProps) {
     const [hasRevealed, setHasRevealed] = useState(false);
     const itemRef = useRef<HTMLDivElement>(null);
     const isFocused = parentActiveIndex === index;
 
-    // 1. Scroll-in entry reveal animation (opacity/translate)
+    // Scroll-in entry reveal animation (opacity/translate)
     useEffect(() => {
         if (typeof window === "undefined" || window.innerWidth >= 768) return;
         const observer = new IntersectionObserver(
@@ -59,28 +57,6 @@ function MobileRevealItem({
         }
         return () => observer.disconnect();
     }, []);
-
-    // 2. Active section focus trigger (updates the sticky hero image at the top)
-    useEffect(() => {
-        if (typeof window === "undefined" || window.innerWidth >= 768) return;
-        const observer = new IntersectionObserver(
-            (entries) => {
-                entries.forEach((entry) => {
-                    if (entry.isIntersecting) {
-                        setActiveIndex(index);
-                    }
-                });
-            },
-            {
-                rootMargin: "200px 0px -20% 0px",
-                threshold: 0,
-            }
-        );
-        if (itemRef.current) {
-            observer.observe(itemRef.current);
-        }
-        return () => observer.disconnect();
-    }, [index, setActiveIndex]);
 
     return (
         <div
@@ -199,6 +175,50 @@ export default function ServicesPage() {
         };
     }, [SERVICES.length]);
 
+    // Mobile scroll spy logic (Bascule top-edge header activation)
+    useEffect(() => {
+        if (typeof window === "undefined" || window.innerWidth >= 768) return;
+
+        let rAFId: number;
+
+        const checkActiveSection = () => {
+            const items = document.querySelectorAll("[data-mobile-item]");
+            if (!items.length) return;
+
+            // Threshold is exactly navbar height (64px) + sticky image height (100vw * 9 / 16)
+            const threshold = 64 + (window.innerWidth * 9) / 16;
+
+            let newActiveIndex = 0;
+
+            for (let i = 0; i < items.length; i++) {
+                const rect = items[i].getBoundingClientRect();
+                // If the top edge of this item's container has crossed the threshold (sticky bottom line),
+                // we mark this index as active.
+                if (rect.top <= threshold + 5) {
+                    newActiveIndex = i;
+                } else {
+                    break; // Sequential items, no need to check further down
+                }
+            }
+
+            setActiveIndex(newActiveIndex);
+        };
+
+        const handleScroll = () => {
+            cancelAnimationFrame(rAFId);
+            rAFId = requestAnimationFrame(checkActiveSection);
+        };
+
+        // Run initial check
+        checkActiveSection();
+
+        window.addEventListener("scroll", handleScroll, { passive: true });
+        return () => {
+            window.removeEventListener("scroll", handleScroll);
+            cancelAnimationFrame(rAFId);
+        };
+    }, [SERVICES.length, setActiveIndex]);
+
 
 
     const handleDotClick = (index: number) => {
@@ -271,7 +291,6 @@ export default function ServicesPage() {
                             service={service}
                             index={index}
                             parentActiveIndex={activeIndex}
-                            setActiveIndex={setActiveIndex}
                         />
                     );
                 })}
