@@ -318,7 +318,7 @@ export default function ServicesPage() {
             <section
                 ref={mobileSectionRef}
                 className="md:hidden w-full bg-black relative"
-                style={{ minHeight: "400vh" }}
+                style={{ minHeight: "400vh", touchAction: "pan-y", pointerEvents: "auto" }}
             >
                 {/* Sticky content viewport container — locks elements on viewport */}
                 <div
