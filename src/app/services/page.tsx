@@ -27,12 +27,14 @@ interface MobileRevealItemProps {
     service: any;
     index: number;
     parentActiveIndex: number;
+    isLast?: boolean;
 }
 
 function MobileRevealItem({
     service,
     index,
     parentActiveIndex,
+    isLast,
 }: MobileRevealItemProps) {
     const [hasRevealed, setHasRevealed] = useState(false);
     const itemRef = useRef<HTMLDivElement>(null);
@@ -63,6 +65,7 @@ function MobileRevealItem({
             ref={itemRef}
             data-mobile-item
             data-index={index}
+            style={isLast ? { scrollMarginBottom: "100px" } : undefined}
             className={`${styles.revealItem} ${hasRevealed ? styles.revealed : ""}`}
         >
             {/* Title / Header */}
@@ -252,7 +255,7 @@ export default function ServicesPage() {
                    automatically as different items scroll past the focal zone.
                  • IntersectionObserver triggers entry slide-up reveal effects.    */}
             <section
-                style={{ paddingBottom: "30vh" }}
+                style={{ paddingBottom: "0px" }}
                 className="md:hidden w-full bg-black relative flex flex-col items-start justify-start h-auto m-0 pt-[64px] px-0 overflow-visible"
             >
 
@@ -299,6 +302,7 @@ export default function ServicesPage() {
                             service={service}
                             index={index}
                             parentActiveIndex={activeIndex}
+                            isLast={index === SERVICES.length - 1}
                         />
                     );
                 })}
