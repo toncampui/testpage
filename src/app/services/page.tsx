@@ -26,16 +26,21 @@ const HIDE_SCROLLBAR_CSS = `
 interface MobileRevealItemProps {
     service: any;
     index: number;
+    parentActiveIndex: number;
+    setActiveIndex: (index: number) => void;
 }
 
 function MobileRevealItem({
     service,
     index,
+    parentActiveIndex,
+    setActiveIndex,
 }: MobileRevealItemProps) {
     const [hasRevealed, setHasRevealed] = useState(false);
     const itemRef = useRef<HTMLDivElement>(null);
+    const isFocused = parentActiveIndex === index;
 
-    // Scroll-in entry reveal animation (opacity/translate)
+    // 1. Scroll-in entry reveal animation (opacity/translate)
     useEffect(() => {
         if (typeof window === "undefined" || window.innerWidth >= 768) return;
         const observer = new IntersectionObserver(
@@ -55,6 +60,29 @@ function MobileRevealItem({
         return () => observer.disconnect();
     }, []);
 
+    // 2. Active section focus trigger (updates the sticky hero image at the top)
+    useEffect(() => {
+        if (typeof window === "undefined" || window.innerWidth >= 768) return;
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        setActiveIndex(index);
+                    }
+                });
+            },
+            {
+                // Trigger line right at the bottom edge of the sticky image
+                rootMargin: "-35% 0px -55% 0px",
+                threshold: 0,
+            }
+        );
+        if (itemRef.current) {
+            observer.observe(itemRef.current);
+        }
+        return () => observer.disconnect();
+    }, [index, setActiveIndex]);
+
     return (
         <div
             ref={itemRef}
@@ -64,15 +92,15 @@ function MobileRevealItem({
         >
             {/* Title / Header */}
             <div className={styles.itemHeader}>
-                <span className="text-[10px] font-mono uppercase tracking-widest w-[60px] text-left text-white/40">
+                <span className={`text-[10px] font-mono uppercase tracking-widest w-[60px] text-left transition-colors duration-300 ${isFocused ? "text-[#863ecc]" : "text-white/40"}`}>
                     [ 0{index + 1} ] -
                 </span>
-                <span className="font-black uppercase tracking-tight leading-tight text-lg text-white">
+                <span className={`font-black uppercase tracking-tight leading-tight transition-all duration-300 ${isFocused ? "text-lg text-white" : "text-sm text-white/50"}`}>
                     {service.title.toUpperCase()}
                 </span>
             </div>
 
-            {/* Description — fully expanded by default */}
+            {/* Description — fully visible by default */}
             <div className={styles.descriptionWrapper}>
                 <p className="text-[13px] text-gray-400 leading-relaxed m-0 p-0">
                     {service.description}
@@ -288,26 +316,44 @@ export default function ServicesPage() {
                 <div className="absolute top-1/2 left-0 -translate-y-1/2 -translate-x-1/2 w-[70vh] h-[70vh] rounded-full bg-[#863ecc]/8 blur-[160px]" />
             </div>
 
-            {/* ── MOBILE-ONLY: Clean Scroll-Reveal List ───────────────────────────
-                 • Discards sticky stacking and accordion toggling.
-                 • Standard vertical list layout where all content is visible.
-                 • Simple fade-in and translateY slide-up entry animations.        */}
+            {/* ── MOBILE-ONLY: Sticky Hero & Scroll-Reveal List ──────────────────
+                 • Discards accordion toggling: all descriptions are fully visible.
+                 • Hero image remains position: sticky at the top, crossfading
+                   automatically as different items scroll past the focal zone.
+                 • IntersectionObserver triggers entry slide-up reveal effects.    */}
             <section className="md:hidden w-full bg-black relative flex flex-col items-start justify-start h-auto m-0 p-0 overflow-visible">
 
-                {/* ① Hero image — scrolls naturally in the flow */}
+                {/* ① Sticky hero image — stays stuck at top, updating dynamically */}
                 <div
-                    className="w-full overflow-hidden bg-black relative"
-                    style={{ aspectRatio: "16/9" }}
+                    className="sticky top-[64px] z-40 w-full overflow-hidden bg-black"
+                    style={{
+                        aspectRatio: "16/9",
+                        willChange: "transform",
+                    }}
                 >
-                    <Image
-                        src={SERVICES[0].image}
-                        alt="Services Hero"
-                        fill
-                        className="object-cover"
-                        sizes="100vw"
-                        priority
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/15 to-transparent pointer-events-none" />
+                    <AnimatePresence mode="popLayout">
+                        <motion.div
+                            key={`mob-img-${activeIndex}`}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.35, ease: "easeInOut" }}
+                            className="absolute inset-0"
+                        >
+                            <Image
+                                src={SERVICES[activeIndex].image}
+                                alt={SERVICES[activeIndex].title}
+                                fill
+                                className="object-cover"
+                                sizes="100vw"
+                                priority
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/15 to-transparent pointer-events-none" />
+                        </motion.div>
+                    </AnimatePresence>
+                    <span className="absolute bottom-3 left-4 z-10 text-[9px] font-mono uppercase tracking-[0.3em] text-[#863ecc]">
+                        0{activeIndex + 1} / 0{SERVICES.length} — {SERVICES[activeIndex].title}
+                    </span>
                 </div>
 
                 {/* ② Scroll-Reveal items */}
@@ -317,6 +363,8 @@ export default function ServicesPage() {
                             key={service.id}
                             service={service}
                             index={index}
+                            parentActiveIndex={activeIndex}
+                            setActiveIndex={setActiveIndex}
                         />
                     );
                 })}
