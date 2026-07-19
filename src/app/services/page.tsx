@@ -65,7 +65,7 @@ function MobileRevealItem({
             ref={itemRef}
             data-mobile-item
             data-index={index}
-            style={isLast ? { scrollMarginBottom: "100px" } : undefined}
+            style={isLast ? { marginBottom: "40px" } : undefined}
             className={`${styles.revealItem} ${hasRevealed ? styles.revealed : ""}`}
         >
             {/* Title / Header */}
@@ -306,6 +306,16 @@ export default function ServicesPage() {
                         />
                     );
                 })}
+
+                {/* Invisible scroll spacer for mobile to push scroll area without visual layout gaps */}
+                <div
+                    style={{
+                        height: "150px",
+                        opacity: 0,
+                        pointerEvents: "none"
+                    }}
+                    className="w-full shrink-0"
+                />
             </section>
 
 
