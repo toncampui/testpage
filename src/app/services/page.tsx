@@ -578,13 +578,13 @@ export default function ServicesPage() {
                         const isCurrent = index === activeTechIndex;
                         const isPassed = index < activeTechIndex;
 
-                        // Inverted Z-Index Back-to-Front stack hierarchy:
-                        // Group 01 (FOTO): z-index 1 (Bottom)
-                        // Group 02: z-index 2
-                        // Group 03: z-index 3
-                        // Group 04: z-index 4
-                        // Group 05 (RENDER 3D): z-index 5 (Top / Highest)
-                        const invertedZIndex = 1 + index;
+                        // Inverted Z-Index Back-to-Front stack hierarchy (1 to 5):
+                        // Group 01 (FOTO): z-index 1 (or 0 when passed)
+                        // Group 02 (VIDEOS): z-index 2
+                        // Group 03 (DRON): z-index 3
+                        // Group 04 (FPV-GOPRO): z-index 4
+                        // Group 05 (RENDER 3D): z-index 5 (Highest)
+                        const invertedZIndex = isPassed ? 0 : 1 + index;
                         const computedOpacity = isPassed ? 0 : 1;
                         const computedTransform = isPassed ? "translateY(-20px)" : "translateY(0)";
 
@@ -600,7 +600,7 @@ export default function ServicesPage() {
                                     opacity: computedOpacity,
                                     transform: computedTransform,
                                     pointerEvents: isPassed ? "none" : "auto",
-                                    transition: "opacity 0.4s ease-in-out, transform 0.4s ease-in-out",
+                                    transition: "opacity 0.5s ease-in-out, transform 0.5s ease-in-out, z-index 0.5s ease-in-out",
                                     height: "auto",
                                     backgroundColor: "#000000",
                                 }}
