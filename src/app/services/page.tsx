@@ -79,8 +79,11 @@ function MobileAccordionItem({
                 </div>
             </div>
 
-            {/* Description — in normal flow, NOT inside sticky div */}
-            <div className={`${styles.contentWrapper} ${isExpanded ? styles.expanded : ""}`}>
+            {/* Description — sticky container positioned below header */}
+            <div
+                className={`${styles.contentWrapper} ${isExpanded ? styles.expanded : ""}`}
+                style={{ zIndex: 10 + index }}
+            >
                 <div className={styles.contentInner}>
                     <p className="text-[13px] text-gray-400 leading-relaxed">
                         {service.description}
