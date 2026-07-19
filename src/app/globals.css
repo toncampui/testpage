@@ -49,22 +49,12 @@
   color: var(--selection-text);
 }
 
-html {
-  height: 100%;
-  overflow-y: auto;
-  scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
-}
-
 body {
   background-color: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
-  min-height: 100%;
   overflow-x: hidden;
-  position: relative;
   -webkit-font-smoothing: antialiased;
-  touch-action: manipulation;
 }
 
 /* Custom scrollbar for a sleek look */
@@ -92,35 +82,4 @@ body {
 .scrollbar-none {
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
-}
-
-/* Initial Load Optimizations: Non-render blocking CSS animations */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes fadeInSimple {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-.animate-hero-title {
-  animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-.animate-hero-btn {
-  opacity: 0;
-  animation: fadeInSimple 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  animation-delay: 0.4s;
 }

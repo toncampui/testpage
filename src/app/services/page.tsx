@@ -30,11 +30,21 @@ export default function ServicesPage() {
     const [mobileActiveIndex, setMobileActiveIndex] = useState(0);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [activeTechIndex, setActiveTechIndex] = useState(0);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const [isMobile, setIsMobile] = useState(false);
     const isScrollingRef = useRef(false);
     const prevDeltaYRef = useRef(0);
     const resetDeltaTimerRef = useRef<NodeJS.Timeout | null>(null);
     const mobileSectionRef = useRef<HTMLDivElement>(null);
+    const isClickScrollingRef = useRef(false);
     const [desktopParallaxY, setDesktopParallaxY] = useState(0);
+
+    useEffect(() => {
+        const checkMobile = () => setIsMobile(window.innerWidth < 768);
+        checkMobile();
+        window.addEventListener("resize", checkMobile);
+        return () => window.removeEventListener("resize", checkMobile);
+    }, []);
 
     const SERVICES = t.services.list.map((item, idx) => {
         const images = [
@@ -111,6 +121,17 @@ export default function ServicesPage() {
                 SERVICES.length - 1
             );
             setActiveIndex(showIndex);
+
+            // 2. Mobile Active index listener (relative math scroll mapping with click scroll override)
+            if (window.innerWidth < 768 && !isClickScrollingRef.current && mobileSectionRef.current) {
+                const parentTop = window.scrollY + mobileSectionRef.current.getBoundingClientRect().top;
+                const relativeScroll = Math.max(scrollY - parentTop, 0);
+                const mobIndex = Math.min(
+                    Math.max(Math.floor(relativeScroll / (viewportH * 0.65)), 0),
+                    SERVICES.length - 1
+                );
+                setMobileActiveIndex(mobIndex);
+            }
 
             // 3. Technical Capabilities active index listener
             const elements = document.querySelectorAll("[data-tech-item]");
@@ -243,26 +264,45 @@ export default function ServicesPage() {
         }
     };
 
-    const handleMobileItemClick = (index: number) => {
-        const targetIndex = mobileActiveIndex === index ? -1 : index;
-        setMobileActiveIndex(targetIndex);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const handleTechClick = (index: number) => {
+        const elements = document.querySelectorAll("[data-tech-item]");
+        const targetEl = elements[index];
+        if (typeof window !== "undefined" && targetEl) {
+            const scrollTop = window.scrollY;
+            const rect = targetEl.getBoundingClientRect();
+            const elementCenter = scrollTop + rect.top + rect.height / 2;
+            const viewportCenter = window.innerHeight / 2;
+            const scrollTarget = elementCenter - viewportCenter;
 
-        if (targetIndex !== -1 && typeof window !== "undefined") {
-            const elements = document.querySelectorAll("[data-mobile-item]");
-            const targetEl = elements[index];
-            if (targetEl) {
-                setTimeout(() => {
-                    const rect = targetEl.getBoundingClientRect();
-                    const scrollTop = window.scrollY || document.documentElement.scrollTop;
-                    const targetY = scrollTop + rect.top - 80; // 80px sticky header padding
-                    window.scrollTo({
-                        top: targetY,
-                        behavior: "smooth"
-                    });
-                }, 50);
-            }
+            window.scrollTo({
+                top: scrollTarget,
+                behavior: "smooth"
+            });
         }
     };
+    const handleMobileItemClick = (index: number) => {
+        if (typeof window !== "undefined" && mobileSectionRef.current) {
+            isClickScrollingRef.current = true;
+            setMobileActiveIndex(index); // Force expand clicked item instantly
+
+            const viewportH = window.innerHeight;
+            const parentTop = window.scrollY + mobileSectionRef.current.getBoundingClientRect().top;
+            // Scroll target clears parent top offset exactly
+            const targetScroll = parentTop + index * (viewportH * 0.65);
+
+            window.scrollTo({
+                top: targetScroll,
+                behavior: "smooth"
+            });
+
+            // Re-enable scroll listener updates after transition completes
+            setTimeout(() => {
+                isClickScrollingRef.current = false;
+            }, 800);
+        }
+    };
+    // ── Mobile scroll-driven accordion index state ───────────────────────
 
     return (
         <main className="min-h-screen relative bg-black text-white selection:bg-[#863ecc] selection:text-black">
@@ -275,75 +315,135 @@ export default function ServicesPage() {
             {/* ── MOBILE-ONLY: Mathematical Scroll Showcase Accordion ──────────────
                  Hidden on md+. Stays sticky in screen viewport for 380vh scroll travel.
                  No IntersectionObserver, no click listeners, no position shifts. */}
-            {/* ── MOBILE-ONLY: Stacking Cards Accordion ────────────── */}
             <section
                 ref={mobileSectionRef}
-                className="md:hidden w-full bg-black relative px-5 py-12 flex flex-col gap-8"
+                className="md:hidden w-full bg-black relative"
+                style={{ minHeight: "400vh" }}
             >
-                {SERVICES.map((service, index) => {
-                    const isActive = index === mobileActiveIndex;
-                    return (
-                        <div
-                            key={service.id}
-                            data-mobile-item
-                            style={{
-                                position: "sticky",
-                                top: `${64 + index * 24}px`,
-                                zIndex: 10 + index,
-                            }}
-                            className="w-full bg-neutral-950 border border-white/10 rounded-3xl overflow-hidden flex flex-col shadow-2xl transition-all duration-300"
-                        >
-                            {/* Card Image */}
-                            <div className="relative w-full aspect-[16/9] overflow-hidden">
+                {/* Sticky content viewport container — locks elements on viewport */}
+                <div
+                    className="sticky w-full overflow-hidden flex flex-col bg-black"
+                    style={{
+                        top: "64px",
+                        height: "calc(100svh - 64px)",
+                        zIndex: 10,
+                    }}
+                >
+                    {/* ① Sticky image — cross-fades as user scrolls to each service */}
+                    <div
+                        className="relative w-full bg-black overflow-hidden"
+                        style={{ aspectRatio: "16/9", zIndex: 20 }}
+                    >
+                        <AnimatePresence mode="popLayout">
+                            <motion.div
+                                key={`mob-img-${mobileActiveIndex}`}
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                transition={{ duration: 0.45, ease: "easeInOut" }}
+                                className="absolute inset-0"
+                            >
                                 <Image
-                                    src={service.image}
-                                    alt={service.title}
+                                    src={SERVICES[mobileActiveIndex].image}
+                                    alt={SERVICES[mobileActiveIndex].title}
                                     fill
                                     className="object-cover"
                                     sizes="100vw"
+                                    priority
                                 />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent pointer-events-none" />
-                            </div>
+                                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/15 to-transparent pointer-events-none" />
+                            </motion.div>
+                        </AnimatePresence>
 
-                            {/* Header Button (Accordion Trigger) */}
-                            <button
-                                type="button"
-                                onClick={() => handleMobileItemClick(index)}
-                                className="px-5 py-4 flex items-center justify-between w-full text-left bg-transparent border-0 cursor-pointer focus:outline-none"
-                            >
-                                <div className="flex items-center gap-3">
-                                    <span className={`text-[10px] font-mono uppercase tracking-widest shrink-0 text-left w-[75px] ${isActive ? "text-[#863ecc]" : "text-white/40"}`}>
-                                        [ 0{index + 1} ] -
-                                    </span>
-                                    <span className={`font-black uppercase tracking-tight leading-tight flex-1 transition-all duration-300 ${isActive ? "text-lg text-white" : "text-sm text-white/50"}`}>
-                                        {service.title.toUpperCase()}
-                                    </span>
-                                </div>
-                                <span className={`shrink-0 w-1.5 h-1.5 rounded-full bg-[#863ecc] shadow-[0_0_8px_#863ecc] transition-opacity duration-300 ${isActive ? "opacity-100" : "opacity-0"}`} />
-                            </button>
-
-                            {/* Content body */}
-                            <AnimatePresence initial={false}>
-                                {isActive && (
-                                    <motion.div
-                                        key="desc"
-                                        initial={{ opacity: 0, height: 0 }}
-                                        animate={{ opacity: 1, height: "auto" }}
-                                        exit={{ opacity: 0, height: 0 }}
-                                        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                                        style={{ overflow: "hidden" }}
-                                    >
-                                        <div className="mx-5 mb-6 pl-4 border-l border-[#863ecc]/40">
-                                            <p className="text-[13px] text-gray-400 leading-relaxed">
-                                                {service.description}
-                                            </p>
-                                        </div>
-                                    </motion.div>
-                                )}
+                        {/* Animated label — tracks the active service */}
+                        <div className="absolute bottom-0 left-0 right-0 px-5 pb-3 z-20">
+                            <AnimatePresence mode="wait">
+                                <motion.span
+                                    key={`mob-lbl-${mobileActiveIndex}`}
+                                    initial={{ opacity: 0, y: 5 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -5 }}
+                                    transition={{ duration: 0.28, ease: "easeOut" }}
+                                    className="text-[9px] font-mono uppercase tracking-[0.3em] text-[#863ecc]"
+                                >
+                                    0{mobileActiveIndex + 1} / 0{SERVICES.length} — {SERVICES[mobileActiveIndex].title}
+                                </motion.span>
                             </AnimatePresence>
                         </div>
-                    );
-                })}
+                    </div>
+
+                    {/* ② Accordion list — relative layout flow inside the sticky wrapper */}
+                    <div
+                        className="flex flex-col w-full"
+                        style={{
+                            position: "relative",
+                            zIndex: 10,
+                        }}
+                    >
+                        {SERVICES.map((service, index) => {
+                            const isActive = index === mobileActiveIndex;
+                            return (
+                                <div
+                                    key={service.id}
+                                    style={{
+                                        position: "relative",
+                                        zIndex: isActive ? 50 : 10 + index,
+                                    }}
+                                    className={`bg-black border-t border-white/10 ${isActive ? "expanded" : "collapsed"
+                                        }`}
+                                >
+                                    <div
+                                        style={{
+                                            transform: isActive
+                                                ? "scale(1) translateY(0)"
+                                                : `scale(${1 - (mobileActiveIndex - index) * 0.02}) translateY(0px)`,
+                                            transformOrigin: "top center",
+                                        }}
+                                        className="w-full h-full"
+                                    >
+                                        {/* Unified Title Row — clickable to scroll smoothly to that item's active view */}
+                                        <button
+                                            type="button"
+                                            onClick={() => handleMobileItemClick(index)}
+                                            className="px-5 py-4 flex items-center gap-3 w-full text-left focus:outline-none bg-transparent border-0 cursor-pointer"
+                                        >
+                                            <span className={`text-[10px] font-mono uppercase tracking-widest shrink-0 text-left w-[75px] ${isActive ? "text-[#863ecc]" : "text-white/40"
+                                                }`}>
+                                                [ 0{index + 1} ] -
+                                            </span>
+                                            <span className={`font-black uppercase tracking-tight leading-tight flex-1 transition-all duration-300 ${isActive ? "text-[1.25rem] text-white" : "text-sm text-white/50"
+                                                }`}>
+                                                {service.title.toUpperCase()}
+                                            </span>
+                                            <span className={`shrink-0 w-1.5 h-1.5 rounded-full bg-[#863ecc] shadow-[0_0_8px_#863ecc] transition-opacity duration-300 ${isActive ? "opacity-100" : "opacity-0"
+                                                }`} />
+                                        </button>
+
+                                        {/* Description — expands/collapses as item snaps into view */}
+                                        <AnimatePresence initial={false}>
+                                            {isActive && (
+                                                <motion.div
+                                                    key="desc"
+                                                    initial={{ opacity: 0, height: 0 }}
+                                                    animate={{ opacity: 1, height: "auto" }}
+                                                    exit={{ opacity: 0, height: 0 }}
+                                                    transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                                                    style={{ overflow: "hidden" }}
+                                                >
+                                                    <div className="mx-5 mb-6 pl-4 border-l border-[#863ecc]/40">
+                                                        <p className="text-[13px] text-gray-400 leading-relaxed">
+                                                            {service.description}
+                                                        </p>
+                                                    </div>
+                                                </motion.div>
+                                            )}
+                                        </AnimatePresence>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
             </section>
 
             {/* ── DESKTOP: Scroll-snap showcase (hidden on mobile) ─────────── */}
