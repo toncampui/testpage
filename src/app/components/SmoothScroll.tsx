@@ -129,7 +129,12 @@ export default function SmoothScroll({ children }: { children: ReactNode }) {
             const targetScrollTop = startScrollTop - dy * 0.5;
             setScrollTop(activeScrollContainer, targetScrollTop);
 
-            if (e.cancelable) {
+            // Only cancel the event after we have confirmed a vertical scroll
+            // gesture with sufficient displacement (>5px). This ensures iOS Safari
+            // short taps still generate synthetic click events — preventing the
+            // accordion buttons from becoming unresponsive.
+            const totalDrag = Math.abs(dy);
+            if (e.cancelable && isSwipeDirectionDetermined && isVerticalSwipe && totalDrag > 5) {
                 e.preventDefault();
             }
         };

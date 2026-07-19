@@ -327,6 +327,8 @@ export default function ServicesPage() {
                         top: "64px",
                         height: "calc(100svh - 64px)",
                         zIndex: 10,
+                        pointerEvents: "auto",           // explicit: never block child taps
+                        WebkitOverflowScrolling: "touch", // legacy momentum on older Safari
                     }}
                 >
                     {/* ① Sticky image — cross-fades as user scrolls to each service */}
@@ -388,9 +390,14 @@ export default function ServicesPage() {
                                     style={{
                                         position: "relative",
                                         zIndex: isActive ? 50 : 10 + index,
+                                        // GPU-promote each card so Safari composites
+                                        // it independently and never drops tap events
+                                        // on a sticky-stacked element.
+                                        willChange: "transform",
+                                        WebkitBackfaceVisibility: "hidden",
+                                        backfaceVisibility: "hidden",
                                     }}
-                                    className={`bg-black border-t border-white/10 ${isActive ? "expanded" : "collapsed"
-                                        }`}
+                                    className={`bg-black border-t border-white/10 ${isActive ? "expanded" : "collapsed"}`}
                                 >
                                     <div
                                         style={{
