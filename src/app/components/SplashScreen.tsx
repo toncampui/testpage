@@ -1,21 +1,30 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, ReactNode } from "react";
+import styles from "./SplashScreen.module.css";
 
-export default function SplashScreen() {
-    const [visible, setVisible] = useState(true);
-    const [fade, setFade] = useState(false);
+export default function SplashScreen({ children }: { children: ReactNode }) {
+    const [isLoaded, setIsLoaded] = useState(false);
+    const [showOverlay, setShowOverlay] = useState(true);
+    const [fadeOverlay, setFadeOverlay] = useState(false);
 
     useEffect(() => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let cleanupTimer: any;
+        let loaded = false;
 
         const handleLoad = () => {
-            setFade(true);
+            if (loaded) return;
+            loaded = true;
+            setIsLoaded(true);
+            setFadeOverlay(true);
             cleanupTimer = setTimeout(() => {
-                setVisible(false);
+                setShowOverlay(false);
             }, 500);
         };
+
+        // Fallback: force trigger load transition after 2.5s if onload is delayed
+        const fallbackTimer = setTimeout(handleLoad, 2500);
 
         if (document.readyState === "complete") {
             handleLoad();
@@ -24,33 +33,38 @@ export default function SplashScreen() {
             return () => {
                 window.removeEventListener("load", handleLoad);
                 if (cleanupTimer) clearTimeout(cleanupTimer);
+                if (fallbackTimer) clearTimeout(fallbackTimer);
             };
         }
 
         return () => {
             if (cleanupTimer) clearTimeout(cleanupTimer);
+            if (fallbackTimer) clearTimeout(fallbackTimer);
         };
     }, []);
 
-    if (!visible) return null;
-
     return (
-        <div
-            id="splash-screen"
-            className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-black transition-opacity duration-500 ease-out ${
-                fade ? "opacity-0 pointer-events-none" : "opacity-100"
-            }`}
-        >
-            <div className="flex flex-col items-center gap-6">
-                {/* Minimal CSS Animated Logo */}
-                <h1 className="text-3xl md:text-4xl font-black tracking-[0.2em] text-white uppercase select-none animate-logo-pulse">
-                    TONI CAMACHO
-                </h1>
-                {/* CSS Animated Progress Bar */}
-                <div className="w-24 h-[2px] bg-neutral-800 rounded-full overflow-hidden relative">
-                    <div className="absolute top-0 left-0 bottom-0 right-0 bg-[#863ecc] rounded-full animate-loader-bar" />
+        <>
+            {showOverlay && (
+                <div
+                    id="splash-screen"
+                    className={`${styles.splashScreen} ${fadeOverlay ? styles.fade : ""}`}
+                >
+                    <div className="flex flex-col items-center gap-6">
+                        {/* Logo Text Styling replicating Navbar */}
+                        <h1 className={styles.logo}>
+                            TONICAMACHO<span className={styles.proExtension}>.PRO</span>
+                        </h1>
+                        {/* Progress bar loader */}
+                        <div className={styles.loaderTrack}>
+                            <div className={styles.loaderBar} />
+                        </div>
+                    </div>
                 </div>
+            )}
+            <div className={`${styles.contentWrapper} ${isLoaded ? styles.contentReady : ""}`}>
+                {children}
             </div>
-        </div>
+        </>
     );
 }

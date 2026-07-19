@@ -49,12 +49,22 @@
   color: var(--selection-text);
 }
 
+html {
+  height: 100%;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
 body {
   background-color: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
+  min-height: 100%;
   overflow-x: hidden;
+  position: relative;
   -webkit-font-smoothing: antialiased;
+  touch-action: manipulation;
 }
 
 /* Custom scrollbar for a sleek look */
@@ -113,43 +123,4 @@ body {
   opacity: 0;
   animation: fadeInSimple 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   animation-delay: 0.4s;
-}
-
-/* Splash Screen Animations */
-@keyframes pulseGlow {
-  0%, 100% {
-    opacity: 0.6;
-    transform: scale(0.98);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.02);
-  }
-}
-
-@keyframes loadingProgress {
-  0% {
-    transform: scaleX(0);
-    transform-origin: left;
-  }
-  50% {
-    transform: scaleX(1);
-    transform-origin: left;
-  }
-  50.1% {
-    transform: scaleX(1);
-    transform-origin: right;
-  }
-  100% {
-    transform: scaleX(0);
-    transform-origin: right;
-  }
-}
-
-.animate-logo-pulse {
-  animation: pulseGlow 2s ease-in-out infinite;
-}
-
-.animate-loader-bar {
-  animation: loadingProgress 1.5s ease-in-out infinite;
 }

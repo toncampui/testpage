@@ -2,6 +2,7 @@
 
 import { ReactLenis, useLenis } from "lenis/react";
 import { ReactNode, useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 
 function LenisWindowBridge() {
     const lenis = useLenis();
@@ -20,13 +21,22 @@ function LenisWindowBridge() {
 
 export default function SmoothScroll({ children }: { children: ReactNode }) {
     const [mounted, setMounted] = useState(false);
+    const pathname = usePathname();
+    const [disableLenis, setDisableLenis] = useState(false);
 
     useEffect(() => {
         // eslint-disable-next-line react-hooks/set-state-in-effect
         setMounted(true);
-    }, []);
 
-    if (!mounted) {
+        const checkMobile = () => {
+            setDisableLenis(window.innerWidth < 768 && pathname === "/services");
+        };
+        checkMobile();
+        window.addEventListener("resize", checkMobile);
+        return () => window.removeEventListener("resize", checkMobile);
+    }, [pathname]);
+
+    if (!mounted || disableLenis) {
         return <>{children}</>;
     }
 

@@ -292,6 +292,7 @@ export default function ServicesPage() {
                 ref={mobileSectionRef}
                 className="md:hidden w-full bg-black relative"
                 style={{ minHeight: "400vh" }}
+                data-lenis-prevent
             >
                 {/* Sticky content viewport container — locks elements on viewport */}
                 <div

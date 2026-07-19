@@ -28,14 +28,15 @@ export default function RootLayout({
       <body
         className={`${inter.variable} antialiased`}
       >
-        <SplashScreen />
-        <LanguageProvider>
-          <SmoothScroll>
-            <Navbar />
-            {children}
-            <Footer />
-          </SmoothScroll>
-        </LanguageProvider>
+        <SplashScreen>
+          <LanguageProvider>
+            <SmoothScroll>
+              <Navbar />
+              {children}
+              <Footer />
+            </SmoothScroll>
+          </LanguageProvider>
+        </SplashScreen>
       </body>
     </html>
   );
