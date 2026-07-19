@@ -261,7 +261,7 @@ export default function ServicesPage() {
 
                 {/* ① Sticky hero image — stays stuck at top, updating dynamically */}
                 <div
-                    className="sticky top-[64px] z-40 w-full overflow-visible bg-black"
+                    className="sticky top-[64px] z-10 w-full overflow-visible bg-black"
                     style={{
                         aspectRatio: "16/9",
                         willChange: "transform, opacity",
@@ -294,28 +294,30 @@ export default function ServicesPage() {
                     </span>
                 </div>
 
-                {/* ② Scroll-Reveal items */}
-                {SERVICES.map((service, index) => {
-                    return (
-                        <MobileRevealItem
-                            key={service.id}
-                            service={service}
-                            index={index}
-                            parentActiveIndex={activeIndex}
-                            isLast={index === SERVICES.length - 1}
-                        />
-                    );
-                })}
+                {/* ② Scroll-Reveal items container with higher z-index to overlay image */}
+                <div className="relative z-20 w-full bg-black">
+                    {SERVICES.map((service, index) => {
+                        return (
+                            <MobileRevealItem
+                                key={service.id}
+                                service={service}
+                                index={index}
+                                parentActiveIndex={activeIndex}
+                                isLast={index === SERVICES.length - 1}
+                            />
+                        );
+                    })}
 
-                {/* Invisible scroll spacer for mobile to push scroll area without visual layout gaps */}
-                <div
-                    style={{
-                        height: "150px",
-                        opacity: 0,
-                        pointerEvents: "none"
-                    }}
-                    className="w-full shrink-0"
-                />
+                    {/* Invisible scroll spacer for mobile to push scroll area without visual layout gaps */}
+                    <div
+                        style={{
+                            height: "150px",
+                            opacity: 0,
+                            pointerEvents: "none"
+                        }}
+                        className="w-full shrink-0"
+                    />
+                </div>
             </section>
 
 
