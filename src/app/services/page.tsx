@@ -521,8 +521,7 @@ export default function ServicesPage() {
                 <div
                     style={{
                         paddingTop: "0px",
-                        marginTop: "0px",
-                        transform: "translateY(-30px)",
+                        marginTop: "-80px",
                     }}
                     className="sticky top-[64px] pb-6 bg-black z-30 text-center px-6 mb-4"
                 >
