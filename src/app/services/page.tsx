@@ -93,7 +93,33 @@ export default function ServicesPage() {
     const containerRef = useRef<HTMLDivElement>(null);
     const techContainerRef = useRef<HTMLDivElement>(null);
     const [activeIndex, setActiveIndex] = useState(0);
+    const [activeTechIndex, setActiveTechIndex] = useState(0);
     const [desktopParallaxY, setDesktopParallaxY] = useState(0);
+
+    // Track active Technical Capabilities card to force exit of previous items
+    useEffect(() => {
+        if (typeof window === "undefined") return;
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        const indexAttr = entry.target.getAttribute("data-tech-index");
+                        if (indexAttr !== null) {
+                            setActiveTechIndex(parseInt(indexAttr, 10));
+                        }
+                    }
+                });
+            },
+            {
+                rootMargin: "-15% 0px -45% 0px",
+                threshold: 0.1,
+            }
+        );
+
+        document.querySelectorAll("[data-tech-item]").forEach((item) => observer.observe(item));
+        return () => observer.disconnect();
+    }, []);
 
 
     const SERVICES = t.services.list.map((item, idx) => {
@@ -540,17 +566,30 @@ export default function ServicesPage() {
 
                 <div className="w-full max-w-5xl mx-auto flex flex-col px-6 sm:px-12 md:px-16">
                     {TECHNICAL_SERVICES.map((tech, index) => {
+                        const isCurrent = index === activeTechIndex;
+                        const isPassed = index < activeTechIndex;
+
+                        const computedZIndex = isCurrent ? 30 : isPassed ? 0 : 10 + index;
+                        const computedOpacity = isPassed ? 0 : 1;
+                        const computedTransform = isPassed ? "translateY(-40px)" : "translateY(0)";
+
                         return (
                             <div
                                 key={tech.id}
+                                data-tech-item
+                                data-tech-index={index}
                                 style={{
                                     position: "sticky",
                                     top: `${220 + index * 24}px`,
-                                    zIndex: 10 + index,
+                                    zIndex: computedZIndex,
+                                    opacity: computedOpacity,
+                                    transform: computedTransform,
+                                    pointerEvents: isPassed ? "none" : "auto",
+                                    transition: "opacity 0.4s ease-in-out, transform 0.4s ease-in-out, z-index 0.4s ease-in-out",
                                     height: "auto",
                                     marginTop: index === 0 ? "48px" : undefined,
                                 }}
-                                className={`w-full bg-black flex flex-col justify-start select-none py-6 mb-12 md:mb-16 ${index === 0 ? "pb-24" : ""}`}
+                                className="w-full bg-black flex flex-col justify-start select-none py-6 mb-12 md:mb-16"
                             >
                                 {/* Panel Header */}
                                 <div className="flex items-center justify-between w-full pb-3 border-b border-white/10">
