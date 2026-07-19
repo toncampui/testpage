@@ -1,7 +1,7 @@
 "use client";
 
 import { ReactLenis, useLenis } from "lenis/react";
-import { ReactNode, useEffect } from "react";
+import { ReactNode, useEffect, useState } from "react";
 
 function LenisWindowBridge() {
     const lenis = useLenis();
@@ -19,6 +19,17 @@ function LenisWindowBridge() {
 }
 
 export default function SmoothScroll({ children }: { children: ReactNode }) {
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setMounted(true);
+    }, []);
+
+    if (!mounted) {
+        return <>{children}</>;
+    }
+
     return (
         <ReactLenis
             root
