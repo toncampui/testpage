@@ -187,21 +187,26 @@ export default function ServicesPage() {
 
             // Threshold is exactly navbar height (64px) + sticky image height (100vw * 9 / 16)
             const threshold = 64 + (window.innerWidth * 9) / 16;
+            const triggerOffset = 50; // Buffer to trigger active state earlier
 
-            let newActiveIndex = 0;
+            let closestIndex = 0;
+            let minDistance = Infinity;
 
             for (let i = 0; i < items.length; i++) {
                 const rect = items[i].getBoundingClientRect();
-                // If the top edge of this item's container has crossed the threshold (sticky bottom line),
-                // we mark this index as active.
-                if (rect.top <= threshold + 5) {
-                    newActiveIndex = i;
-                } else {
-                    break; // Sequential items, no need to check further down
+                
+                // Top coordinate relative to our sticky layout threshold
+                const relativeTop = rect.top - threshold;
+                
+                // Find the header closest to the active zone (biased by triggerOffset)
+                const distance = Math.abs(relativeTop - triggerOffset);
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    closestIndex = i;
                 }
             }
 
-            setActiveIndex(newActiveIndex);
+            setActiveIndex(closestIndex);
         };
 
         const handleScroll = () => {
