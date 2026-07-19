@@ -197,10 +197,10 @@ export default function ServicesPage() {
 
             for (let i = 0; i < items.length; i++) {
                 const rect = items[i].getBoundingClientRect();
-                
+
                 // Top coordinate relative to our sticky layout threshold
                 const relativeTop = rect.top - threshold;
-                
+
                 // Find the header closest to the active zone (biased by triggerOffset)
                 const distance = Math.abs(relativeTop - triggerOffset);
                 if (distance < minDistance) {
@@ -311,7 +311,7 @@ export default function ServicesPage() {
                     {/* Invisible scroll spacer for mobile to push scroll area without visual layout gaps */}
                     <div
                         style={{
-                            height: "150px",
+                            height: "10px",
                             opacity: 0,
                             pointerEvents: "none"
                         }}
