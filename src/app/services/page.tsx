@@ -29,8 +29,10 @@ export default function ServicesPage() {
     const [activeIndex, setActiveIndex] = useState(0);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [activeTechIndex, setActiveTechIndex] = useState(0);
-    // Mobile accordion: which card is expanded (-1 = none)
-    const [openIndex, setOpenIndex] = useState<number>(-1);
+    // Mobile: which accordion card is expanded (0 = first item open by default)
+    const [openIndex, setOpenIndex] = useState<number>(0);
+    const mobileSectionRef = useRef<HTMLDivElement>(null);
+    const isClickLockedRef = useRef(false);
     const isScrollingRef = useRef(false);
     const prevDeltaYRef = useRef(0);
     const resetDeltaTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -262,11 +264,34 @@ export default function ServicesPage() {
         }
     };
 
-    // Toggle open card; close if already open
+    // Toggle open card; click-locks for 700ms so scroll can't immediately override
     const handleCardToggle = (index: number) => {
         setOpenIndex(prev => prev === index ? -1 : index);
+        isClickLockedRef.current = true;
+        setTimeout(() => { isClickLockedRef.current = false; }, 700);
     };
-    // ── Mobile accordion state ───────────────────────
+
+    // ── Mobile scroll-driven accordion (passive, no preventDefault) ───────
+    useEffect(() => {
+        if (typeof window === "undefined") return;
+        const handleMobileScroll = () => {
+            if (window.innerWidth >= 768) return;
+            if (isClickLockedRef.current || !mobileSectionRef.current) return;
+            const scrollY = window.scrollY;
+            const sectionTop = scrollY + mobileSectionRef.current.getBoundingClientRect().top;
+            const relScroll = Math.max(scrollY - sectionTop, 0);
+            const totalScrollable = mobileSectionRef.current.offsetHeight - window.innerHeight;
+            if (totalScrollable <= 0) return;
+            const step = totalScrollable / (SERVICES.length - 1);
+            const idx = Math.min(
+                Math.max(Math.round(relScroll / step), 0),
+                SERVICES.length - 1
+            );
+            setOpenIndex(idx);
+        };
+        window.addEventListener("scroll", handleMobileScroll, { passive: true });
+        return () => window.removeEventListener("scroll", handleMobileScroll);
+    }, [SERVICES.length]);
 
     return (
         <main className="min-h-screen relative bg-black text-white selection:bg-[#863ecc] selection:text-black">
@@ -276,15 +301,19 @@ export default function ServicesPage() {
                 <div className="absolute top-1/2 left-0 -translate-y-1/2 -translate-x-1/2 w-[70vh] h-[70vh] rounded-full bg-[#863ecc]/8 blur-[160px]" />
             </div>
 
-            {/* ── MOBILE-ONLY: Dynamic Image + Accordion List ──────────────────────
-                 • Sticky image container updates its source when openIndex changes
-                 • Accordion list below — tap to expand, image crossfades instantly
-                 • Zero JS scroll listeners, zero preventDefault, pure React state */}
-            <section className="md:hidden w-full bg-black relative">
-
-                {/* ① Sticky image — stays in view while user scrolls accordion list */}
+            {/* ── MOBILE-ONLY: Scroll-Driven Sticky-Stack Accordion ────────────────
+                 • Section has scroll room (≈ N*120vh) so sticky cards can stack
+                 • Passive scroll listener maps scrollY → openIndex (no preventDefault)
+                 • Click toggles instantly, locks scroll-override for 700ms
+                 • Image crossfades on every openIndex change                   */}
+            <section
+                ref={mobileSectionRef}
+                className="md:hidden w-full bg-black relative"
+                style={{ minHeight: `${SERVICES.length * 120}vh` }}
+            >
+                {/* ① Sticky image — stays locked at top while cards scroll beneath */}
                 <div
-                    className="sticky top-[64px] w-full z-20 overflow-hidden bg-black"
+                    className="sticky top-[64px] w-full z-40 overflow-hidden bg-black"
                     style={{ aspectRatio: "16/9" }}
                 >
                     <AnimatePresence mode="popLayout">
@@ -297,8 +326,8 @@ export default function ServicesPage() {
                             className="absolute inset-0"
                         >
                             <Image
-                                src={SERVICES[openIndex < 0 ? 0 : openIndex].image}
-                                alt={SERVICES[openIndex < 0 ? 0 : openIndex].title}
+                                src={SERVICES[Math.max(openIndex, 0)].image}
+                                alt={SERVICES[Math.max(openIndex, 0)].title}
                                 fill
                                 className="object-cover"
                                 sizes="100vw"
@@ -310,72 +339,74 @@ export default function ServicesPage() {
 
                     {/* Counter badge */}
                     <span className="absolute bottom-3 left-4 z-10 text-[9px] font-mono uppercase tracking-[0.3em] text-[#863ecc]">
-                        0{(openIndex < 0 ? 0 : openIndex) + 1} / 0{SERVICES.length}
-                        {" — "}{SERVICES[openIndex < 0 ? 0 : openIndex].title}
+                        0{Math.max(openIndex, 0) + 1} / 0{SERVICES.length}
+                        {" — "}{SERVICES[Math.max(openIndex, 0)].title}
                     </span>
                 </div>
 
-                {/* ② Accordion list — normal document flow, scrolls under the sticky image */}
-                <div className="w-full flex flex-col">
-                    {SERVICES.map((service, index) => {
-                        const isOpen = index === openIndex;
-                        return (
-                            <div
-                                key={service.id}
-                                className="w-full border-t border-white/10 bg-black"
-                                style={{
-                                    willChange: "transform",
-                                    WebkitBackfaceVisibility: "hidden",
-                                    backfaceVisibility: "hidden",
-                                }}
+                {/* ② Sticky accordion cards — each stacks at a higher top offset */}
+                {SERVICES.map((service, index) => {
+                    const isOpen = index === openIndex;
+                    return (
+                        <div
+                            key={service.id}
+                            style={{
+                                position: "sticky",
+                                // Stack cards below the image: navbar(64) + image(100vw*9/16) + per-card offset
+                                top: `calc(64px + (100vw * 9 / 16) + ${index * 52}px)`,
+                                zIndex: 10 + index,
+                                willChange: "transform",
+                                WebkitBackfaceVisibility: "hidden",
+                                backfaceVisibility: "hidden",
+                            }}
+                            className="w-full bg-black border-t border-white/10"
+                        >
+                            {/* Title row — tap to toggle, image & badge update instantly */}
+                            <button
+                                type="button"
+                                onClick={() => handleCardToggle(index)}
+                                className="w-full px-5 py-4 flex items-center justify-between bg-transparent border-0 cursor-pointer focus:outline-none"
+                                style={{ touchAction: "manipulation", pointerEvents: "auto" }}
                             >
-                                {/* Title row — tap to toggle */}
-                                <button
-                                    type="button"
-                                    onClick={() => handleCardToggle(index)}
-                                    className="w-full px-5 py-4 flex items-center justify-between bg-transparent border-0 cursor-pointer focus:outline-none"
-                                    style={{ touchAction: "manipulation", pointerEvents: "auto" }}
-                                >
-                                    <div className="flex items-center gap-3">
-                                        <span className={`text-[10px] font-mono uppercase tracking-widest w-[60px] text-left transition-colors duration-300 ${isOpen ? "text-[#863ecc]" : "text-white/40"}`}>
-                                            [ 0{index + 1} ] -
-                                        </span>
-                                        <span className={`font-black uppercase tracking-tight leading-tight transition-all duration-300 ${isOpen ? "text-lg text-white" : "text-sm text-white/50"}`}>
-                                            {service.title.toUpperCase()}
-                                        </span>
-                                    </div>
-                                    {/* Chevron */}
-                                    <span
-                                        className="shrink-0 text-[#863ecc] text-lg leading-none transition-transform duration-300"
-                                        style={{ transform: isOpen ? "rotate(180deg)" : "rotate(0deg)" }}
-                                    >
-                                        ▾
+                                <div className="flex items-center gap-3">
+                                    <span className={`text-[10px] font-mono uppercase tracking-widest w-[60px] text-left transition-colors duration-300 ${isOpen ? "text-[#863ecc]" : "text-white/40"}`}>
+                                        [ 0{index + 1} ] -
                                     </span>
-                                </button>
+                                    <span className={`font-black uppercase tracking-tight leading-tight transition-all duration-300 ${isOpen ? "text-lg text-white" : "text-sm text-white/50"}`}>
+                                        {service.title.toUpperCase()}
+                                    </span>
+                                </div>
+                                {/* Chevron */}
+                                <span
+                                    className="shrink-0 text-[#863ecc] text-lg leading-none transition-transform duration-300"
+                                    style={{ transform: isOpen ? "rotate(180deg)" : "rotate(0deg)" }}
+                                >
+                                    ▾
+                                </span>
+                            </button>
 
-                                {/* Expandable description */}
-                                <AnimatePresence initial={false}>
-                                    {isOpen && (
-                                        <motion.div
-                                            key="desc"
-                                            initial={{ opacity: 0, height: 0 }}
-                                            animate={{ opacity: 1, height: "auto" }}
-                                            exit={{ opacity: 0, height: 0 }}
-                                            transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-                                            style={{ overflow: "hidden" }}
-                                        >
-                                            <div className="px-5 pb-6 pl-[calc(60px+1.25rem+0.75rem)] border-l-0">
-                                                <p className="text-[13px] text-gray-400 leading-relaxed">
-                                                    {service.description}
-                                                </p>
-                                            </div>
-                                        </motion.div>
-                                    )}
-                                </AnimatePresence>
-                            </div>
-                        );
-                    })}
-                </div>
+                            {/* Expandable description */}
+                            <AnimatePresence initial={false}>
+                                {isOpen && (
+                                    <motion.div
+                                        key="desc"
+                                        initial={{ opacity: 0, height: 0 }}
+                                        animate={{ opacity: 1, height: "auto" }}
+                                        exit={{ opacity: 0, height: 0 }}
+                                        transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                                        style={{ overflow: "hidden" }}
+                                    >
+                                        <div className="px-5 pb-6 pl-[calc(60px+1.25rem+0.75rem)]">
+                                            <p className="text-[13px] text-gray-400 leading-relaxed">
+                                                {service.description}
+                                            </p>
+                                        </div>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </div>
+                    );
+                })}
             </section>
 
 
