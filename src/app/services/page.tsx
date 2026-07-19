@@ -72,8 +72,7 @@ function MobileRevealItem({
                 });
             },
             {
-                // Trigger line right at the bottom edge of the sticky image
-                rootMargin: "-35% 0px -55% 0px",
+                rootMargin: "-10% 0px -70% 0px",
                 threshold: 0,
             }
         );
