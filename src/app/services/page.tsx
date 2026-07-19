@@ -27,24 +27,15 @@ export default function ServicesPage() {
     const containerRef = useRef<HTMLDivElement>(null);
     const techContainerRef = useRef<HTMLDivElement>(null);
     const [activeIndex, setActiveIndex] = useState(0);
-    const [mobileActiveIndex, setMobileActiveIndex] = useState(0);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [activeTechIndex, setActiveTechIndex] = useState(0);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [isMobile, setIsMobile] = useState(false);
+    // Mobile accordion: which card is expanded (-1 = none)
+    const [openIndex, setOpenIndex] = useState<number>(-1);
     const isScrollingRef = useRef(false);
     const prevDeltaYRef = useRef(0);
     const resetDeltaTimerRef = useRef<NodeJS.Timeout | null>(null);
-    const mobileSectionRef = useRef<HTMLDivElement>(null);
-    const isClickScrollingRef = useRef(false);
     const [desktopParallaxY, setDesktopParallaxY] = useState(0);
 
-    useEffect(() => {
-        const checkMobile = () => setIsMobile(window.innerWidth < 768);
-        checkMobile();
-        window.addEventListener("resize", checkMobile);
-        return () => window.removeEventListener("resize", checkMobile);
-    }, []);
 
     const SERVICES = t.services.list.map((item, idx) => {
         const images = [
@@ -121,17 +112,6 @@ export default function ServicesPage() {
                 SERVICES.length - 1
             );
             setActiveIndex(showIndex);
-
-            // 2. Mobile Active index listener (relative math scroll mapping with click scroll override)
-            if (window.innerWidth < 768 && !isClickScrollingRef.current && mobileSectionRef.current) {
-                const parentTop = window.scrollY + mobileSectionRef.current.getBoundingClientRect().top;
-                const relativeScroll = Math.max(scrollY - parentTop, 0);
-                const mobIndex = Math.min(
-                    Math.max(Math.floor(relativeScroll / (viewportH * 0.65)), 0),
-                    SERVICES.length - 1
-                );
-                setMobileActiveIndex(mobIndex);
-            }
 
             // 3. Technical Capabilities active index listener
             const elements = document.querySelectorAll("[data-tech-item]");
@@ -281,28 +261,12 @@ export default function ServicesPage() {
             });
         }
     };
-    const handleMobileItemClick = (index: number) => {
-        if (typeof window !== "undefined" && mobileSectionRef.current) {
-            isClickScrollingRef.current = true;
-            setMobileActiveIndex(index); // Force expand clicked item instantly
 
-            const viewportH = window.innerHeight;
-            const parentTop = window.scrollY + mobileSectionRef.current.getBoundingClientRect().top;
-            // Scroll target clears parent top offset exactly
-            const targetScroll = parentTop + index * (viewportH * 0.65);
-
-            window.scrollTo({
-                top: targetScroll,
-                behavior: "smooth"
-            });
-
-            // Re-enable scroll listener updates after transition completes
-            setTimeout(() => {
-                isClickScrollingRef.current = false;
-            }, 800);
-        }
+    // Toggle open card; close if already open
+    const handleCardToggle = (index: number) => {
+        setOpenIndex(prev => prev === index ? -1 : index);
     };
-    // ── Mobile scroll-driven accordion index state ───────────────────────
+    // ── Mobile accordion state ───────────────────────
 
     return (
         <main className="min-h-screen relative bg-black text-white selection:bg-[#863ecc] selection:text-black">
@@ -312,146 +276,90 @@ export default function ServicesPage() {
                 <div className="absolute top-1/2 left-0 -translate-y-1/2 -translate-x-1/2 w-[70vh] h-[70vh] rounded-full bg-[#863ecc]/8 blur-[160px]" />
             </div>
 
-            {/* ── MOBILE-ONLY: Mathematical Scroll Showcase Accordion ──────────────
-                 Hidden on md+. Stays sticky in screen viewport for 380vh scroll travel.
-                 No IntersectionObserver, no click listeners, no position shifts. */}
-            <section
-                ref={mobileSectionRef}
-                className="md:hidden w-full bg-black relative"
-                style={{ minHeight: "400vh", touchAction: "pan-y", pointerEvents: "auto" }}
-            >
-                {/* Sticky content viewport container — locks elements on viewport */}
-                <div
-                    className="sticky w-full overflow-hidden flex flex-col bg-black"
-                    style={{
-                        top: "64px",
-                        height: "calc(100svh - 64px)",
-                        zIndex: 10,
-                        pointerEvents: "auto",           // explicit: never block child taps
-                        WebkitOverflowScrolling: "touch", // legacy momentum on older Safari
-                    }}
-                >
-                    {/* ① Sticky image — cross-fades as user scrolls to each service */}
-                    <div
-                        className="relative w-full bg-black overflow-hidden"
-                        style={{ aspectRatio: "16/9", zIndex: 20 }}
-                    >
-                        <AnimatePresence mode="popLayout">
-                            <motion.div
-                                key={`mob-img-${mobileActiveIndex}`}
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                exit={{ opacity: 0 }}
-                                transition={{ duration: 0.45, ease: "easeInOut" }}
-                                className="absolute inset-0"
+            {/* ── MOBILE-ONLY: Unified Sticky-Stack Card Deck ──────────────────────
+                 Same position:sticky pattern as the Technical Capabilities section.
+                 Pure CSS stacking — zero JS scroll listeners on mobile. */}
+            <section className="md:hidden w-full bg-black relative pb-12">
+                <div className="w-full flex flex-col px-4 pt-8">
+                    {SERVICES.map((service, index) => {
+                        const isOpen = index === openIndex;
+                        return (
+                            <div
+                                key={service.id}
+                                style={{
+                                    position: "sticky",
+                                    top: `${64 + index * 20}px`,
+                                    zIndex: 10 + index,
+                                    willChange: "transform",
+                                    WebkitBackfaceVisibility: "hidden",
+                                    backfaceVisibility: "hidden",
+                                }}
+                                className="w-full bg-neutral-950 border border-white/10 rounded-2xl overflow-hidden mb-3 shadow-xl"
                             >
-                                <Image
-                                    src={SERVICES[mobileActiveIndex].image}
-                                    alt={SERVICES[mobileActiveIndex].title}
-                                    fill
-                                    className="object-cover"
-                                    sizes="100vw"
-                                    priority
-                                />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/15 to-transparent pointer-events-none" />
-                            </motion.div>
-                        </AnimatePresence>
-
-                        {/* Animated label — tracks the active service */}
-                        <div className="absolute bottom-0 left-0 right-0 px-5 pb-3 z-20">
-                            <AnimatePresence mode="wait">
-                                <motion.span
-                                    key={`mob-lbl-${mobileActiveIndex}`}
-                                    initial={{ opacity: 0, y: 5 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    exit={{ opacity: 0, y: -5 }}
-                                    transition={{ duration: 0.28, ease: "easeOut" }}
-                                    className="text-[9px] font-mono uppercase tracking-[0.3em] text-[#863ecc]"
-                                >
-                                    0{mobileActiveIndex + 1} / 0{SERVICES.length} — {SERVICES[mobileActiveIndex].title}
-                                </motion.span>
-                            </AnimatePresence>
-                        </div>
-                    </div>
-
-                    {/* ② Accordion list — relative layout flow inside the sticky wrapper */}
-                    <div
-                        className="flex flex-col w-full"
-                        style={{
-                            position: "relative",
-                            zIndex: 10,
-                        }}
-                    >
-                        {SERVICES.map((service, index) => {
-                            const isActive = index === mobileActiveIndex;
-                            return (
-                                <div
-                                    key={service.id}
-                                    style={{
-                                        position: "relative",
-                                        zIndex: isActive ? 50 : 10 + index,
-                                        // GPU-promote each card so Safari composites
-                                        // it independently and never drops tap events
-                                        // on a sticky-stacked element.
-                                        willChange: "transform",
-                                        WebkitBackfaceVisibility: "hidden",
-                                        backfaceVisibility: "hidden",
-                                    }}
-                                    className={`bg-black border-t border-white/10 ${isActive ? "expanded" : "collapsed"}`}
-                                >
-                                    <div
-                                        style={{
-                                            transform: isActive
-                                                ? "scale(1) translateY(0)"
-                                                : `scale(${1 - (mobileActiveIndex - index) * 0.02}) translateY(0px)`,
-                                            transformOrigin: "top center",
-                                        }}
-                                        className="w-full h-full"
-                                    >
-                                        {/* Unified Title Row — clickable to scroll smoothly to that item's active view */}
-                                        <button
-                                            type="button"
-                                            onClick={() => handleMobileItemClick(index)}
-                                            className="px-5 py-4 flex items-center gap-3 w-full text-left focus:outline-none bg-transparent border-0 cursor-pointer"
-                                        >
-                                            <span className={`text-[10px] font-mono uppercase tracking-widest shrink-0 text-left w-[75px] ${isActive ? "text-[#863ecc]" : "text-white/40"
-                                                }`}>
-                                                [ 0{index + 1} ] -
-                                            </span>
-                                            <span className={`font-black uppercase tracking-tight leading-tight flex-1 transition-all duration-300 ${isActive ? "text-[1.25rem] text-white" : "text-sm text-white/50"
-                                                }`}>
-                                                {service.title.toUpperCase()}
-                                            </span>
-                                            <span className={`shrink-0 w-1.5 h-1.5 rounded-full bg-[#863ecc] shadow-[0_0_8px_#863ecc] transition-opacity duration-300 ${isActive ? "opacity-100" : "opacity-0"
-                                                }`} />
-                                        </button>
-
-                                        {/* Description — expands/collapses as item snaps into view */}
-                                        <AnimatePresence initial={false}>
-                                            {isActive && (
-                                                <motion.div
-                                                    key="desc"
-                                                    initial={{ opacity: 0, height: 0 }}
-                                                    animate={{ opacity: 1, height: "auto" }}
-                                                    exit={{ opacity: 0, height: 0 }}
-                                                    transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                                                    style={{ overflow: "hidden" }}
-                                                >
-                                                    <div className="mx-5 mb-6 pl-4 border-l border-[#863ecc]/40">
-                                                        <p className="text-[13px] text-gray-400 leading-relaxed">
-                                                            {service.description}
-                                                        </p>
-                                                    </div>
-                                                </motion.div>
-                                            )}
-                                        </AnimatePresence>
-                                    </div>
+                                {/* Card image — always visible */}
+                                <div className="relative w-full aspect-[16/9] overflow-hidden">
+                                    <Image
+                                        src={service.image}
+                                        alt={service.title}
+                                        fill
+                                        className="object-cover"
+                                        sizes="100vw"
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent pointer-events-none" />
+                                    <span className="absolute top-3 left-4 text-[9px] font-mono uppercase tracking-[0.3em] text-[#863ecc]">
+                                        0{index + 1} / 0{SERVICES.length}
+                                    </span>
                                 </div>
-                            );
-                        })}
-                    </div>
+
+                                {/* Accordion trigger */}
+                                <button
+                                    type="button"
+                                    onClick={() => handleCardToggle(index)}
+                                    className="w-full px-5 py-4 flex items-center justify-between bg-transparent border-0 cursor-pointer focus:outline-none"
+                                    style={{ touchAction: "manipulation", pointerEvents: "auto" }}
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <span className={`text-[10px] font-mono uppercase tracking-widest w-[60px] text-left transition-colors duration-300 ${isOpen ? "text-[#863ecc]" : "text-white/40"}`}>
+                                            [ 0{index + 1} ] -
+                                        </span>
+                                        <span className={`font-black uppercase tracking-tight leading-tight transition-all duration-300 ${isOpen ? "text-lg text-white" : "text-sm text-white/50"}`}>
+                                            {service.title.toUpperCase()}
+                                        </span>
+                                    </div>
+                                    {/* Chevron */}
+                                    <span
+                                        className="shrink-0 text-[#863ecc] transition-transform duration-300 text-lg leading-none"
+                                        style={{ transform: isOpen ? "rotate(180deg)" : "rotate(0deg)" }}
+                                    >
+                                        ▾
+                                    </span>
+                                </button>
+
+                                {/* Expandable description */}
+                                <AnimatePresence initial={false}>
+                                    {isOpen && (
+                                        <motion.div
+                                            key="desc"
+                                            initial={{ opacity: 0, height: 0 }}
+                                            animate={{ opacity: 1, height: "auto" }}
+                                            exit={{ opacity: 0, height: 0 }}
+                                            transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                                            style={{ overflow: "hidden" }}
+                                        >
+                                            <div className="px-5 pb-6 border-t border-white/5 pt-3">
+                                                <p className="text-[13px] text-gray-400 leading-relaxed">
+                                                    {service.description}
+                                                </p>
+                                            </div>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+                            </div>
+                        );
+                    })}
                 </div>
             </section>
+
 
             {/* ── DESKTOP: Scroll-snap showcase (hidden on mobile) ─────────── */}
             <div
