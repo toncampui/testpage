@@ -251,13 +251,13 @@ export default function Navbar() {
                     WebkitTransform: "translateZ(0)",
                     backgroundColor: isTransparent ? "transparent" : "#000000",
                 }}
-                className={`fixed top-0 left-0 right-0 py-3 border-b transition-all duration-300 ease-in-out ${
+                className={`fixed top-0 left-0 right-0 h-20 flex items-center border-b transition-all duration-300 ease-in-out ${
                     isTransparent
                         ? "bg-transparent border-transparent shadow-none"
                         : "bg-[#000000] backdrop-blur-md border-white/10 shadow-lg scrolled"
                 }`}
             >
-                <div className="container px-6 mx-auto flex justify-between items-center">
+                <div className="container px-6 mx-auto flex justify-between items-center h-full">
                     <Link href="/" className="text-xl font-black tracking-tighter">
                         TONICAMACHO<span className="text-[#863ecc]">.PRO</span>
                     </Link>
