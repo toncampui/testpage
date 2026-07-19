@@ -115,9 +115,6 @@ export default function ServicesPage() {
     const containerRef = useRef<HTMLDivElement>(null);
     const techContainerRef = useRef<HTMLDivElement>(null);
     const [activeIndex, setActiveIndex] = useState(0);
-    const isScrollingRef = useRef(false);
-    const prevDeltaYRef = useRef(0);
-    const resetDeltaTimerRef = useRef<NodeJS.Timeout | null>(null);
     const [desktopParallaxY, setDesktopParallaxY] = useState(0);
 
 
@@ -203,98 +200,7 @@ export default function ServicesPage() {
         };
     }, [SERVICES.length]);
 
-    useEffect(() => {
-        let timer: NodeJS.Timeout;
 
-        const handleWheel = (e: WheelEvent) => {
-            if (typeof window === "undefined") return;
-
-            const scrollY = window.scrollY;
-            const viewportH = window.innerHeight;
-            const showcaseEnd = (SERVICES.length - 1) * viewportH;
-
-            // If we are below the showcase, behave normally
-            if (scrollY > showcaseEnd + 50) {
-                return;
-            }
-
-            // Calculate current index
-            const currentIndex = Math.min(
-                Math.max(Math.round(scrollY / viewportH), 0),
-                SERVICES.length - 1
-            );
-
-            // If we are at the last item and scrolling down, let normal scroll pass
-            if (currentIndex === SERVICES.length - 1 && e.deltaY > 0) {
-                return;
-            }
-
-            // If we are at the first item and scrolling up, let normal scroll pass
-            if (currentIndex === 0 && e.deltaY < 0) {
-                return;
-            }
-
-            // Intercept wheel event
-            e.preventDefault();
-
-            const absDeltaY = Math.abs(e.deltaY);
-            const prevDeltaY = prevDeltaYRef.current;
-            prevDeltaYRef.current = absDeltaY;
-
-            // Debounced reset of prevDeltaY after wheel events stop
-            if (resetDeltaTimerRef.current) {
-                clearTimeout(resetDeltaTimerRef.current);
-            }
-            resetDeltaTimerRef.current = setTimeout(() => {
-                prevDeltaYRef.current = 0;
-            }, 150);
-
-            // If a transition is already in progress, ignore
-            if (isScrollingRef.current) return;
-
-            // Trackpad momentum decay filtering:
-            // Only allow transition if current deltaY is significantly higher than previous,
-            // signaling the start of a new intentional swipe.
-            const isIntentionalNewGesture =
-                (prevDeltaY === 0 && absDeltaY > 2) ||
-                (absDeltaY > prevDeltaY + 5);
-            if (!isIntentionalNewGesture) {
-                return;
-            }
-
-            let targetIndex = currentIndex;
-            if (e.deltaY > 0) {
-                targetIndex = Math.min(currentIndex + 1, SERVICES.length - 1);
-            } else if (e.deltaY < 0) {
-                targetIndex = Math.max(currentIndex - 1, 0);
-            }
-
-            if (targetIndex !== currentIndex) {
-                isScrollingRef.current = true;
-
-                window.scrollTo({
-                    top: targetIndex * viewportH,
-                    behavior: "smooth"
-                });
-
-                if (timer) clearTimeout(timer);
-
-                timer = setTimeout(() => {
-                    isScrollingRef.current = false;
-                }, 1200); // 1200ms hard lock cooldown
-            }
-        };
-
-        window.addEventListener("wheel", handleWheel, { passive: false });
-
-        return () => {
-            window.removeEventListener("wheel", handleWheel);
-            if (timer) clearTimeout(timer);
-            if (resetDeltaTimerRef.current) {
-                clearTimeout(resetDeltaTimerRef.current);
-            }
-        };
-    }, [SERVICES.length]);
 
     const handleDotClick = (index: number) => {
         if (typeof window !== "undefined") {
@@ -325,10 +231,12 @@ export default function ServicesPage() {
 
                 {/* ① Sticky hero image — stays stuck at top, updating dynamically */}
                 <div
-                    className="sticky top-[64px] z-40 w-full overflow-hidden bg-black"
+                    className="sticky top-0 z-40 w-full overflow-hidden bg-black"
                     style={{
                         aspectRatio: "16/9",
-                        willChange: "transform",
+                        willChange: "transform, opacity",
+                        transform: "translateZ(0)",
+                        WebkitTransform: "translateZ(0)",
                     }}
                 >
                     <AnimatePresence mode="popLayout">
