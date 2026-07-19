@@ -44,9 +44,9 @@ function MobileAccordionItem({
         <div
             data-mobile-item
             data-index={index}
-            className="relative w-full h-[70vh] bg-black"
+            className="relative w-full h-[70vh] bg-black overflow-visible"
         >
-            {/* Sticky title row — GPU-promoted so Safari won't flicker */}
+            {/* Sticky Card Wrapper containing both header and description */}
             <div
                 style={{
                     position: "sticky",
@@ -56,38 +56,38 @@ function MobileAccordionItem({
                     WebkitBackfaceVisibility: "hidden",
                     backfaceVisibility: "hidden",
                 }}
-                className={styles.stickyHeader}
+                className="w-full bg-black border-t border-white/10"
             >
-                <div
-                    className="w-full px-5 py-4 flex items-center justify-between bg-transparent border-0"
-                    style={{ pointerEvents: "none" }}
-                >
-                    <div className="flex items-center gap-3">
-                        <span className={`text-[10px] font-mono uppercase tracking-widest w-[60px] text-left transition-colors duration-300 ${isExpanded ? "text-[#863ecc]" : "text-white/40"}`}>
-                            [ 0{index + 1} ] -
-                        </span>
-                        <span className={`font-black uppercase tracking-tight leading-tight transition-all duration-300 ${isExpanded ? "text-lg text-white" : "text-sm text-white/50"}`}>
-                            {service.title.toUpperCase()}
+                {/* Header */}
+                <div className={styles.stickyHeader}>
+                    <div
+                        className="w-full px-5 py-4 flex items-center justify-between bg-transparent border-0"
+                        style={{ pointerEvents: "none" }}
+                    >
+                        <div className="flex items-center gap-3">
+                            <span className={`text-[10px] font-mono uppercase tracking-widest w-[60px] text-left transition-colors duration-300 ${isExpanded ? "text-[#863ecc]" : "text-white/40"}`}>
+                                [ 0{index + 1} ] -
+                            </span>
+                            <span className={`font-black uppercase tracking-tight leading-tight transition-all duration-300 ${isExpanded ? "text-lg text-white" : "text-sm text-white/50"}`}>
+                                {service.title.toUpperCase()}
+                            </span>
+                        </div>
+                        <span
+                            className="shrink-0 text-[#863ecc] text-lg leading-none transition-transform duration-300"
+                            style={{ transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)" }}
+                        >
+                            ▾
                         </span>
                     </div>
-                    <span
-                        className="shrink-0 text-[#863ecc] text-lg leading-none transition-transform duration-300"
-                        style={{ transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)" }}
-                    >
-                        ▾
-                    </span>
                 </div>
-            </div>
 
-            {/* Description — sticky container positioned below header */}
-            <div
-                className={`${styles.contentWrapper} ${isExpanded ? styles.expanded : ""}`}
-                style={{ zIndex: 10 + index }}
-            >
-                <div className={styles.contentInner}>
-                    <p className="text-[13px] text-gray-400 leading-relaxed">
-                        {service.description}
-                    </p>
+                {/* Description */}
+                <div className={`${styles.contentWrapper} ${isExpanded ? styles.expanded : ""}`}>
+                    <div className={styles.contentInner}>
+                        <p className="text-[13px] text-gray-400 leading-relaxed">
+                            {service.description}
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
