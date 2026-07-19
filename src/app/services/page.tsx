@@ -23,62 +23,86 @@ const HIDE_SCROLLBAR_CSS = `
     }
 `;
 
-interface MobileAccordionItemProps {
+interface MobileRevealItemProps {
     service: any;
     index: number;
-    parentOpenIndex: number;
-    onToggle: (index: number) => void;
+    parentActiveIndex: number;
+    setActiveIndex: (index: number) => void;
 }
 
-function MobileAccordionItem({
+function MobileRevealItem({
     service,
     index,
-    parentOpenIndex,
-    onToggle,
-}: MobileAccordionItemProps) {
-    const isExpanded = parentOpenIndex === index;
+    parentActiveIndex,
+    setActiveIndex,
+}: MobileRevealItemProps) {
+    const [hasRevealed, setHasRevealed] = useState(false);
+    const itemRef = useRef<HTMLDivElement>(null);
+    const isFocused = parentActiveIndex === index;
+
+    // 1. Scroll-in entry reveal animation (opacity/translate)
+    useEffect(() => {
+        if (typeof window === "undefined" || window.innerWidth >= 768) return;
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        setHasRevealed(true);
+                        observer.unobserve(entry.target); // Reveal only once
+                    }
+                });
+            },
+            { threshold: 0.1, rootMargin: "0px 0px -10% 0px" }
+        );
+        if (itemRef.current) {
+            observer.observe(itemRef.current);
+        }
+        return () => observer.disconnect();
+    }, []);
+
+    // 2. Focus trigger (when the item is the focal point near the top of the viewport)
+    useEffect(() => {
+        if (typeof window === "undefined" || window.innerWidth >= 768) return;
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        setActiveIndex(index);
+                    }
+                });
+            },
+            {
+                // Trigger area is near the top (around the sticky image boundary)
+                rootMargin: "-35% 0px -55% 0px",
+                threshold: 0,
+            }
+        );
+        if (itemRef.current) {
+            observer.observe(itemRef.current);
+        }
+        return () => observer.disconnect();
+    }, [index, setActiveIndex]);
 
     return (
         <div
+            ref={itemRef}
             data-mobile-item
             data-index={index}
-            className="relative w-full bg-black overflow-visible block h-auto m-0 p-0"
+            className={`${styles.revealItem} ${hasRevealed ? styles.revealed : ""}`}
         >
-            {/* Sticky Header — ALWAYS sticky, snaps to the top and is pushed away naturally */}
-            <button
-                type="button"
-                onClick={() => onToggle(index)}
-                style={{
-                    position: "sticky",
-                    top: `calc(64px + (100vw * 9 / 16))`,
-                    zIndex: 10 + index,
-                    willChange: "transform",
-                    WebkitBackfaceVisibility: "hidden",
-                    backfaceVisibility: "hidden",
-                }}
-                className={`${styles.stickyHeader} w-full text-left cursor-pointer border-0 outline-none`}
-            >
-                <div className="w-full px-5 py-4 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <span className={`text-[10px] font-mono uppercase tracking-widest w-[60px] text-left transition-colors duration-300 ${isExpanded ? "text-[#863ecc]" : "text-white/40"}`}>
-                            [ 0{index + 1} ] -
-                        </span>
-                        <span className={`font-black uppercase tracking-tight leading-tight transition-all duration-300 ${isExpanded ? "text-lg text-white" : "text-sm text-white/50"}`}>
-                            {service.title.toUpperCase()}
-                        </span>
-                    </div>
-                    <span
-                        className="shrink-0 text-[#863ecc] text-lg leading-none transition-transform duration-300"
-                        style={{ transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)" }}
-                    >
-                        ▾
-                    </span>
-                </div>
-            </button>
+            {/* Title / Header */}
+            <div className={styles.itemHeader}>
+                <span className={`text-[10px] font-mono uppercase tracking-widest w-[60px] text-left transition-colors duration-300 ${isFocused ? "text-[#863ecc]" : "text-white/40"}`}>
+                    [ 0{index + 1} ] -
+                </span>
+                <span className={`font-black uppercase tracking-tight leading-tight transition-all duration-300 ${isFocused ? "text-lg text-white" : "text-sm text-white/50"}`}>
+                    {service.title.toUpperCase()}
+                </span>
+            </div>
 
-            {/* Description — directly below the sticky header in normal flow */}
-            <div className={`${styles.contentWrapper} ${isExpanded ? styles.expanded : ""}`}>
-                <div className={styles.contentInner}>
+            {/* Description — reveals smoothly when focused */}
+            <div className={`${styles.descriptionWrapper} ${isFocused ? styles.focused : ""}`}>
+                <div className={styles.descriptionInner}>
                     <p className="text-[13px] text-gray-400 leading-relaxed m-0 p-0">
                         {service.description}
                     </p>
@@ -93,8 +117,6 @@ export default function ServicesPage() {
     const containerRef = useRef<HTMLDivElement>(null);
     const techContainerRef = useRef<HTMLDivElement>(null);
     const [activeIndex, setActiveIndex] = useState(0);
-    // Mobile accordion: which card is open (0 = first by default, -1 = none)
-    const [openIndex, setOpenIndex] = useState<number>(0);
     const isScrollingRef = useRef(false);
     const prevDeltaYRef = useRef(0);
     const resetDeltaTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -287,10 +309,6 @@ export default function ServicesPage() {
     };
 
 
-    const handleCardToggle = (index: number) => {
-        setOpenIndex(prev => prev === index ? -1 : index);
-    };
-
 
     return (
         <main className="min-h-screen relative bg-black text-white selection:bg-[#863ecc] selection:text-black">
@@ -300,22 +318,21 @@ export default function ServicesPage() {
                 <div className="absolute top-1/2 left-0 -translate-y-1/2 -translate-x-1/2 w-[70vh] h-[70vh] rounded-full bg-[#863ecc]/8 blur-[160px]" />
             </div>
 
-            {/* ── MOBILE-ONLY: Click-Driven Sticky-Stack Accordion ────────────────
-                 • Pure React useState — zero scroll math on mobile
-                 • Each item = normal-flow wrapper > sticky header + description in flow
-                 • Description lives OUTSIDE the sticky div so expansion pushes
-                   subsequent headers down naturally (correct stacking geometry)
-                 • Image crossfades on every openIndex change (click-driven)       */}
+            {/* ── MOBILE-ONLY: Scroll-Reveal & Focus List ─────────────────────────
+                 • Discards complex accordion logic. Titles are always visible.
+                 • IntersectionObserver triggers smooth scroll-in animations.
+                 • Focal point updates activeIndex and crossfades the top image.
+                 • Focus class reveals active item's description smoothly.         */}
             <section className="md:hidden w-full bg-black relative flex flex-col items-start justify-start h-auto m-0 p-0 overflow-visible">
 
-                {/* ① Sticky image — sticks at top while user reads accordion */}
+                {/* ① Sticky image — sticks at top while user scrolls the list */}
                 <div
                     className="sticky top-[64px] z-40 w-full overflow-hidden bg-black"
                     style={{ aspectRatio: "16/9" }}
                 >
                     <AnimatePresence mode="popLayout">
                         <motion.div
-                            key={`mob-img-${Math.max(openIndex, 0)}`}
+                            key={`mob-img-${activeIndex}`}
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
@@ -323,8 +340,8 @@ export default function ServicesPage() {
                             className="absolute inset-0"
                         >
                             <Image
-                                src={SERVICES[Math.max(openIndex, 0)].image}
-                                alt={SERVICES[Math.max(openIndex, 0)].title}
+                                src={SERVICES[activeIndex].image}
+                                alt={SERVICES[activeIndex].title}
                                 fill
                                 className="object-cover"
                                 sizes="100vw"
@@ -334,21 +351,19 @@ export default function ServicesPage() {
                         </motion.div>
                     </AnimatePresence>
                     <span className="absolute bottom-3 left-4 z-10 text-[9px] font-mono uppercase tracking-[0.3em] text-[#863ecc]">
-                        0{Math.max(openIndex, 0) + 1} / 0{SERVICES.length} — {SERVICES[Math.max(openIndex, 0)].title}
+                        0{activeIndex + 1} / 0{SERVICES.length} — {SERVICES[activeIndex].title}
                     </span>
                 </div>
 
-                {/* ② Accordion items — each wrapper is in normal document flow         */}
-                {/* The sticky HEADER stacks; the DESCRIPTION lives below it in flow  */}
-                {/* → When description expands it pushes subsequent items down ✔      */}
+                {/* ② Scroll-Reveal items — each item has scroll-in and focus triggers */}
                 {SERVICES.map((service, index) => {
                     return (
-                        <MobileAccordionItem
+                        <MobileRevealItem
                             key={service.id}
                             service={service}
                             index={index}
-                            parentOpenIndex={openIndex}
-                            onToggle={handleCardToggle}
+                            parentActiveIndex={activeIndex}
+                            setActiveIndex={setActiveIndex}
                         />
                     );
                 })}
