@@ -7,7 +7,17 @@ import { useLanguage } from "../context/LanguageContext";
 export default function Hero() {
     const { language } = useLanguage();
     return (
-        <section className="relative h-screen flex flex-col items-center justify-center overflow-hidden bg-black">
+        <section
+            style={{
+                marginTop: "-2px",
+                paddingTop: "2px",
+                backgroundColor: "#000000",
+                zIndex: 1,
+                transform: "translateZ(0)",
+                WebkitTransform: "translateZ(0)",
+            }}
+            className="relative h-screen flex flex-col items-center justify-center overflow-hidden bg-black"
+        >
             {/* Background Animated Elements */}
             <div className="absolute inset-0 z-0">
                 <Image

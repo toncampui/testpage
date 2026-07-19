@@ -264,6 +264,9 @@ export default function ServicesPage() {
                     className="sticky top-[63px] z-10 w-full overflow-hidden bg-black"
                     style={{
                         aspectRatio: "16/9",
+                        marginTop: "-2px",
+                        paddingTop: "2px",
+                        backgroundColor: "#000000",
                         willChange: "transform, opacity",
                         transform: "translateZ(0)",
                         WebkitTransform: "translateZ(0)",
@@ -311,7 +314,7 @@ export default function ServicesPage() {
                     {/* Invisible scroll spacer for mobile to push scroll area without visual layout gaps */}
                     <div
                         style={{
-                            height: "10px",
+                            height: "150px",
                             opacity: 0,
                             pointerEvents: "none"
                         }}
@@ -521,7 +524,7 @@ export default function ServicesPage() {
             >
                 {/* Sticky Header */}
                 <div className="sticky top-[64px] z-30 pt-8 pb-6 bg-black text-center px-6 mb-4">
-                    <h2 className="text-3xl md:text-5xl font-black tracking-tight uppercase mb-4 text-white">
+                    <h2 className="-mt-4 md:-mt-6 text-3xl md:text-5xl font-black tracking-tight uppercase mb-4 text-white">
                         {t.services.title}
                     </h2>
                     <p className="text-gray-400 text-xs sm:text-sm md:text-base max-w-2xl mx-auto">

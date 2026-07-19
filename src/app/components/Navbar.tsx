@@ -12,12 +12,30 @@ export default function Navbar() {
     const { language, setLanguage, t } = useLanguage();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [mounted, setMounted] = useState(false);
+    const [isScrolled, setIsScrolled] = useState(false);
     const pathname = usePathname();
 
     const [isDesktopLangOpen, setIsDesktopLangOpen] = useState(false);
     const [isMobileLangOpen, setIsMobileLangOpen] = useState(false);
     const desktopRef = useRef<HTMLDivElement>(null);
     const mobileRef = useRef<HTMLDivElement>(null);
+
+    // Track scroll position for navbar background transition
+    useEffect(() => {
+        const handleScroll = () => {
+            if (window.scrollY > 50) {
+                setIsScrolled(true);
+            } else {
+                setIsScrolled(false);
+            }
+        };
+
+        handleScroll();
+        window.addEventListener("scroll", handleScroll, { passive: true });
+        return () => {
+            window.removeEventListener("scroll", handleScroll);
+        };
+    }, []);
 
     // Ensure we only render the portal after hydration
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -221,16 +239,22 @@ export default function Navbar() {
         </AnimatePresence>
     );
 
+    const isHomePage = pathname === "/";
+    const isTransparent = isHomePage && !isScrolled;
+
     return (
         <>
             <nav
                 style={{
-                    backgroundColor: "#000000",
                     zIndex: 10000,
                     transform: "translateZ(0)",
                     WebkitTransform: "translateZ(0)",
                 }}
-                className="fixed top-0 left-0 right-0 py-4 border-b border-white/10 shadow-lg"
+                className={`fixed top-0 left-0 right-0 py-4 border-b transition-all duration-300 ease-in-out ${
+                    isTransparent
+                        ? "bg-transparent border-transparent shadow-none"
+                        : "bg-[#050505] backdrop-blur-md border-white/10 shadow-lg scrolled"
+                }`}
             >
                 <div className="container px-6 mx-auto flex justify-between items-center">
                     <Link href="/" className="text-xl font-black tracking-tighter">
