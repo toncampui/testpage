@@ -255,18 +255,24 @@ export default function ServicesPage() {
                    automatically as different items scroll past the focal zone.
                  • IntersectionObserver triggers entry slide-up reveal effects.    */}
             <section
-                style={{ paddingBottom: "0px" }}
-                className="md:hidden w-full bg-black relative flex flex-col items-start justify-start h-auto m-0 pt-[60px] px-0 overflow-visible"
+                style={{ paddingBottom: "0px", backgroundColor: "#000000" }}
+                className="md:hidden w-full bg-black relative flex flex-col items-start justify-start h-auto m-0 pt-[63px] px-0 overflow-visible"
             >
-
-                {/* ① Sticky hero image — stays stuck at top, updating dynamically */}
+                {/* Black Clipping Mask Shield behind Navbar (z-index: 999) */}
                 <div
-                    className="sticky top-[60px] z-10 w-full overflow-hidden bg-black"
+                    className="fixed top-0 left-0 right-0 h-[65px] bg-black pointer-events-none"
+                    style={{ zIndex: 999 }}
+                />
+
+                {/* ① Sticky hero image (z-index: 500) — stays stuck at top, updating dynamically */}
+                <div
+                    className="sticky top-[63px] w-full overflow-hidden bg-black"
                     style={{
                         aspectRatio: "16/9",
                         marginTop: "-2px",
                         paddingTop: "2px",
                         backgroundColor: "#000000",
+                        zIndex: 500,
                         willChange: "transform, opacity",
                         transform: "translateZ(0)",
                         WebkitTransform: "translateZ(0)",
@@ -297,8 +303,8 @@ export default function ServicesPage() {
                     </span>
                 </div>
 
-                {/* ② Scroll-Reveal items container with lower z-index so they slide behind the image */}
-                <div className="relative z-0 w-full bg-black">
+                {/* ② Scroll-Reveal items container (z-index: 100) — slides behind sticky hero image */}
+                <div className="relative w-full bg-black" style={{ zIndex: 100 }}>
                     {SERVICES.map((service, index) => {
                         return (
                             <MobileRevealItem
