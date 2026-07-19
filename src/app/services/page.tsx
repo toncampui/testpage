@@ -261,7 +261,7 @@ export default function ServicesPage() {
 
                 {/* ① Sticky hero image — stays stuck at top, updating dynamically */}
                 <div
-                    className="sticky top-[64px] z-10 w-full overflow-visible bg-black"
+                    className="sticky top-[64px] w-full overflow-hidden bg-black"
                     style={{
                         aspectRatio: "16/9",
                         willChange: "transform, opacity",
@@ -294,30 +294,28 @@ export default function ServicesPage() {
                     </span>
                 </div>
 
-                {/* ② Scroll-Reveal items container with higher z-index to overlay image */}
-                <div className="relative z-20 w-full bg-black">
-                    {SERVICES.map((service, index) => {
-                        return (
-                            <MobileRevealItem
-                                key={service.id}
-                                service={service}
-                                index={index}
-                                parentActiveIndex={activeIndex}
-                                isLast={index === SERVICES.length - 1}
-                            />
-                        );
-                    })}
+                {/* ② Scroll-Reveal items */}
+                {SERVICES.map((service, index) => {
+                    return (
+                        <MobileRevealItem
+                            key={service.id}
+                            service={service}
+                            index={index}
+                            parentActiveIndex={activeIndex}
+                            isLast={index === SERVICES.length - 1}
+                        />
+                    );
+                })}
 
-                    {/* Invisible scroll spacer for mobile to push scroll area without visual layout gaps */}
-                    <div
-                        style={{
-                            height: "150px",
-                            opacity: 0,
-                            pointerEvents: "none"
-                        }}
-                        className="w-full shrink-0"
-                    />
-                </div>
+                {/* Invisible scroll spacer for mobile to push scroll area without visual layout gaps */}
+                <div
+                    style={{
+                        height: "150px",
+                        opacity: 0,
+                        pointerEvents: "none"
+                    }}
+                    className="w-full shrink-0"
+                />
             </section>
 
 
@@ -520,17 +518,8 @@ export default function ServicesPage() {
                 className="relative z-20 w-full bg-black border-t border-white/5 pb-24 md:pb-32"
             >
                 {/* Sticky Header */}
-                <div
-                    style={{
-                        paddingTop: "0px",
-                        marginTop: "-80px",
-                    }}
-                    className="sticky top-[64px] pb-6 bg-black z-30 text-center px-6 mb-4"
-                >
-                    <h2
-                        style={{ lineHeight: "0.8", marginTop: "0px", paddingTop: "0px", display: "block" }}
-                        className="text-3xl md:text-5xl font-black tracking-tight uppercase mb-4 text-white"
-                    >
+                <div className="sticky top-[64px] z-30 pt-8 pb-6 bg-black text-center px-6 mb-4">
+                    <h2 className="text-3xl md:text-5xl font-black tracking-tight uppercase mb-4 text-white">
                         {t.services.title}
                     </h2>
                     <p className="text-gray-400 text-xs sm:text-sm md:text-base max-w-2xl mx-auto">
