@@ -11,7 +11,6 @@ import { useLanguage } from "../context/LanguageContext";
 export default function Navbar() {
     const { language, setLanguage, t } = useLanguage();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-    const [isScrolled, setIsScrolled] = useState(false);
     const [mounted, setMounted] = useState(false);
     const pathname = usePathname();
 
@@ -23,14 +22,6 @@ export default function Navbar() {
     // Ensure we only render the portal after hydration
     // eslint-disable-next-line react-hooks/set-state-in-effect
     useEffect(() => { setMounted(true); }, []);
-
-    useEffect(() => {
-        const handleScroll = () => {
-            setIsScrolled(window.scrollY > 50);
-        };
-        window.addEventListener("scroll", handleScroll, { passive: true });
-        return () => window.removeEventListener("scroll", handleScroll);
-    }, []);
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -233,10 +224,11 @@ export default function Navbar() {
     return (
         <>
             <nav
-                className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-in-out py-4 ${isScrolled
-                    ? "bg-[#050505]/90 backdrop-blur-md border-b border-white/10 shadow-lg"
-                    : "bg-transparent border-transparent shadow-none"
-                    }`}
+                style={{
+                    backgroundColor: "#000000",
+                    zIndex: 10000,
+                }}
+                className="fixed top-0 left-0 right-0 py-4 border-b border-white/10 shadow-lg"
             >
                 <div className="container px-6 mx-auto flex justify-between items-center">
                     <Link href="/" className="text-xl font-black tracking-tighter">
