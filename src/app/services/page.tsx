@@ -256,12 +256,12 @@ export default function ServicesPage() {
                  • IntersectionObserver triggers entry slide-up reveal effects.    */}
             <section
                 style={{ paddingBottom: "0px" }}
-                className="md:hidden w-full bg-black relative flex flex-col items-start justify-start h-auto m-0 pt-[64px] px-0 overflow-visible"
+                className="md:hidden w-full bg-black relative flex flex-col items-start justify-start h-auto m-0 pt-[63px] px-0 overflow-visible"
             >
 
                 {/* ① Sticky hero image — stays stuck at top, updating dynamically */}
                 <div
-                    className="sticky top-[64px] z-10 w-full overflow-hidden bg-black"
+                    className="sticky top-[63px] z-10 w-full overflow-hidden bg-black"
                     style={{
                         aspectRatio: "16/9",
                         willChange: "transform, opacity",

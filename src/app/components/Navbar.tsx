@@ -227,6 +227,8 @@ export default function Navbar() {
                 style={{
                     backgroundColor: "#000000",
                     zIndex: 10000,
+                    transform: "translateZ(0)",
+                    WebkitTransform: "translateZ(0)",
                 }}
                 className="fixed top-0 left-0 right-0 py-4 border-b border-white/10 shadow-lg"
             >
