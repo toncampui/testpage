@@ -4,6 +4,7 @@ import { useRef, useState, useEffect } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "../context/LanguageContext";
+import styles from "./services.module.css";
 
 // Global scrollbar-hiding CSS (scroll-snap removed — mobile uses its own
 // isolated inner scroll container with its own snap context)
@@ -22,15 +23,81 @@ const HIDE_SCROLLBAR_CSS = `
     }
 `;
 
+interface MobileAccordionItemProps {
+    service: any;
+    index: number;
+    parentOpenIndex: number;
+    onToggle: (index: number) => void;
+}
+
+function MobileAccordionItem({
+    service,
+    index,
+    parentOpenIndex,
+    onToggle,
+}: MobileAccordionItemProps) {
+    const [isExpanded, setIsExpanded] = useState(index === 0);
+
+    useEffect(() => {
+        setIsExpanded(parentOpenIndex === index);
+    }, [parentOpenIndex, index]);
+
+    return (
+        <div className={styles.accordionItem}>
+            {/* Sticky title row — GPU-promoted so Safari won't flicker */}
+            <div
+                style={{
+                    position: "sticky",
+                    top: `calc(64px + (100vw * 9 / 16) + ${index * 52}px)`,
+                    zIndex: 10 + index,
+                    willChange: "transform",
+                    WebkitBackfaceVisibility: "hidden",
+                    backfaceVisibility: "hidden",
+                }}
+                className={styles.stickyHeader}
+            >
+                <button
+                    type="button"
+                    onClick={() => onToggle(index)}
+                    className="w-full px-5 py-4 flex items-center justify-between bg-transparent border-0 cursor-pointer focus:outline-none"
+                    style={{ touchAction: "manipulation", pointerEvents: "auto" }}
+                >
+                    <div className="flex items-center gap-3">
+                        <span className={`text-[10px] font-mono uppercase tracking-widest w-[60px] text-left transition-colors duration-300 ${isExpanded ? "text-[#863ecc]" : "text-white/40"}`}>
+                            [ 0{index + 1} ] -
+                        </span>
+                        <span className={`font-black uppercase tracking-tight leading-tight transition-all duration-300 ${isExpanded ? "text-lg text-white" : "text-sm text-white/50"}`}>
+                            {service.title.toUpperCase()}
+                        </span>
+                    </div>
+                    <span
+                        className="shrink-0 text-[#863ecc] text-lg leading-none transition-transform duration-300"
+                        style={{ transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)" }}
+                    >
+                        ▾
+                    </span>
+                </button>
+            </div>
+
+            {/* Description — in normal flow, NOT inside sticky div */}
+            <div className={`${styles.contentWrapper} ${isExpanded ? styles.expanded : ""}`}>
+                <div className={styles.contentInner}>
+                    <p className="text-[13px] text-gray-400 leading-relaxed">
+                        {service.description}
+                    </p>
+                </div>
+            </div>
+        </div>
+    );
+}
+
 export default function ServicesPage() {
     const { language, t } = useLanguage();
     const containerRef = useRef<HTMLDivElement>(null);
     const techContainerRef = useRef<HTMLDivElement>(null);
     const [activeIndex, setActiveIndex] = useState(0);
-    // Mobile: which accordion card is expanded (0 = first item open by default)
+    // Mobile accordion: which card is open (0 = first by default, -1 = none)
     const [openIndex, setOpenIndex] = useState<number>(0);
-    const mobileSectionRef = useRef<HTMLDivElement>(null);
-    const isClickLockedRef = useRef(false);
     const isScrollingRef = useRef(false);
     const prevDeltaYRef = useRef(0);
     const resetDeltaTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -94,36 +161,21 @@ export default function ServicesPage() {
             const viewportH = window.innerHeight;
             const isMobile = window.innerWidth < 768;
 
-            if (!isMobile) {
-                // ─ Desktop: parallax + active index ────────────────────────
-                if (containerRef.current) {
-                    const rect = containerRef.current.getBoundingClientRect();
-                    const offsetTop = scrollY + rect.top;
-                    const totalHeight = containerRef.current.offsetHeight;
-                    const scrollable = totalHeight - viewportH;
-                    const relativeScroll = Math.max(Math.min(scrollY - offsetTop, scrollable), 0);
-                    const progress = scrollable > 0 ? relativeScroll / scrollable : 0;
-                    setDesktopParallaxY(24 - progress * 48);
-                }
-                setActiveIndex(
-                    Math.min(Math.max(Math.round(scrollY / viewportH), 0), SERVICES.length - 1)
-                );
-            } else {
-                // ─ Mobile: accordion open-index (early trigger at ~33% of step) ───
-                if (isClickLockedRef.current || !mobileSectionRef.current) return;
-                const sectionTop = scrollY + mobileSectionRef.current.getBoundingClientRect().top;
-                const relScroll = Math.max(scrollY - sectionTop, 0);
-                const totalScrollable = mobileSectionRef.current.offsetHeight - viewportH;
-                if (totalScrollable <= 0) return;
-                const step = totalScrollable / (SERVICES.length - 1);
-                // Multiply by 1.5 so the trigger fires at ~67% of the step distance
-                // (instead of 50% with Math.round) — feels 1.5× more responsive.
-                const idx = Math.min(
-                    Math.max(Math.floor((relScroll / step) * 1.5), 0),
-                    SERVICES.length - 1
-                );
-                setOpenIndex(idx);
+            if (isMobile) return; // mobile uses pure click state — zero scroll work on mobile
+
+            // ─ Desktop only: parallax + active index ────────────────────
+            if (containerRef.current) {
+                const rect = containerRef.current.getBoundingClientRect();
+                const offsetTop = scrollY + rect.top;
+                const totalHeight = containerRef.current.offsetHeight;
+                const scrollable = totalHeight - viewportH;
+                const relativeScroll = Math.max(Math.min(scrollY - offsetTop, scrollable), 0);
+                const progress = scrollable > 0 ? relativeScroll / scrollable : 0;
+                setDesktopParallaxY(24 - progress * 48);
             }
+            setActiveIndex(
+                Math.min(Math.max(Math.round(scrollY / viewportH), 0), SERVICES.length - 1)
+            );
         };
 
         window.addEventListener("scroll", handleScroll, { passive: true });
@@ -238,11 +290,9 @@ export default function ServicesPage() {
     };
 
 
-    // Toggle open card; click-locks for 700ms so scroll can't immediately override
+    // Pure click toggle — no scroll override, no timers
     const handleCardToggle = (index: number) => {
         setOpenIndex(prev => prev === index ? -1 : index);
-        isClickLockedRef.current = true;
-        setTimeout(() => { isClickLockedRef.current = false; }, 700);
     };
 
 
@@ -254,28 +304,26 @@ export default function ServicesPage() {
                 <div className="absolute top-1/2 left-0 -translate-y-1/2 -translate-x-1/2 w-[70vh] h-[70vh] rounded-full bg-[#863ecc]/8 blur-[160px]" />
             </div>
 
-            {/* ── MOBILE-ONLY: Scroll-Driven Sticky-Stack Accordion ────────────────
-                 • Section has scroll room (≈ N*120vh) so sticky cards can stack
-                 • Passive scroll listener maps scrollY → openIndex (no preventDefault)
-                 • Click toggles instantly, locks scroll-override for 700ms
-                 • Image crossfades on every openIndex change                   */}
-            <section
-                ref={mobileSectionRef}
-                className="md:hidden w-full bg-black relative"
-                style={{ minHeight: `${SERVICES.length * 50}vh` }}
-            >
-                {/* ① Sticky image — stays locked at top while cards scroll beneath */}
+            {/* ── MOBILE-ONLY: Click-Driven Sticky-Stack Accordion ────────────────
+                 • Pure React useState — zero scroll math on mobile
+                 • Each item = normal-flow wrapper > sticky header + description in flow
+                 • Description lives OUTSIDE the sticky div so expansion pushes
+                   subsequent headers down naturally (correct stacking geometry)
+                 • Image crossfades on every openIndex change (click-driven)       */}
+            <section className="md:hidden w-full bg-black relative">
+
+                {/* ① Sticky image — sticks at top while user reads accordion */}
                 <div
-                    className="sticky top-[64px] w-full z-40 overflow-hidden bg-black"
+                    className="sticky top-[64px] z-40 w-full overflow-hidden bg-black"
                     style={{ aspectRatio: "16/9" }}
                 >
                     <AnimatePresence mode="popLayout">
                         <motion.div
-                            key={`mob-img-${openIndex}`}
+                            key={`mob-img-${Math.max(openIndex, 0)}`}
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
-                            transition={{ duration: 0.4, ease: "easeInOut" }}
+                            transition={{ duration: 0.35, ease: "easeInOut" }}
                             className="absolute inset-0"
                         >
                             <Image
@@ -289,75 +337,23 @@ export default function ServicesPage() {
                             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/15 to-transparent pointer-events-none" />
                         </motion.div>
                     </AnimatePresence>
-
-                    {/* Counter badge */}
                     <span className="absolute bottom-3 left-4 z-10 text-[9px] font-mono uppercase tracking-[0.3em] text-[#863ecc]">
-                        0{Math.max(openIndex, 0) + 1} / 0{SERVICES.length}
-                        {" — "}{SERVICES[Math.max(openIndex, 0)].title}
+                        0{Math.max(openIndex, 0) + 1} / 0{SERVICES.length} — {SERVICES[Math.max(openIndex, 0)].title}
                     </span>
                 </div>
 
-                {/* ② Sticky accordion cards — each stacks at a higher top offset */}
+                {/* ② Accordion items — each wrapper is in normal document flow         */}
+                {/* The sticky HEADER stacks; the DESCRIPTION lives below it in flow  */}
+                {/* → When description expands it pushes subsequent items down ✔      */}
                 {SERVICES.map((service, index) => {
-                    const isOpen = index === openIndex;
                     return (
-                        <div
+                        <MobileAccordionItem
                             key={service.id}
-                            style={{
-                                position: "sticky",
-                                // Stack cards below the image: navbar(64) + image(100vw*9/16) + per-card offset
-                                top: `calc(64px + (100vw * 9 / 16) + ${index * 52}px)`,
-                                zIndex: 10 + index,
-                                willChange: "transform",
-                                WebkitBackfaceVisibility: "hidden",
-                                backfaceVisibility: "hidden",
-                            }}
-                            className="w-full bg-black border-t border-white/10"
-                        >
-                            {/* Title row — tap to toggle, image & badge update instantly */}
-                            <button
-                                type="button"
-                                onClick={() => handleCardToggle(index)}
-                                className="w-full px-5 py-4 flex items-center justify-between bg-transparent border-0 cursor-pointer focus:outline-none"
-                                style={{ touchAction: "manipulation", pointerEvents: "auto" }}
-                            >
-                                <div className="flex items-center gap-3">
-                                    <span className={`text-[10px] font-mono uppercase tracking-widest w-[60px] text-left transition-colors duration-300 ${isOpen ? "text-[#863ecc]" : "text-white/40"}`}>
-                                        [ 0{index + 1} ] -
-                                    </span>
-                                    <span className={`font-black uppercase tracking-tight leading-tight transition-all duration-300 ${isOpen ? "text-lg text-white" : "text-sm text-white/50"}`}>
-                                        {service.title.toUpperCase()}
-                                    </span>
-                                </div>
-                                {/* Chevron */}
-                                <span
-                                    className="shrink-0 text-[#863ecc] text-lg leading-none transition-transform duration-300"
-                                    style={{ transform: isOpen ? "rotate(180deg)" : "rotate(0deg)" }}
-                                >
-                                    ▾
-                                </span>
-                            </button>
-
-                            {/* Expandable description */}
-                            <AnimatePresence initial={false}>
-                                {isOpen && (
-                                    <motion.div
-                                        key="desc"
-                                        initial={{ opacity: 0, height: 0 }}
-                                        animate={{ opacity: 1, height: "auto" }}
-                                        exit={{ opacity: 0, height: 0 }}
-                                        transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-                                        style={{ overflow: "hidden" }}
-                                    >
-                                        <div className="px-5 pb-6 pl-[calc(60px+1.25rem+0.75rem)]">
-                                            <p className="text-[13px] text-gray-400 leading-relaxed">
-                                                {service.description}
-                                            </p>
-                                        </div>
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
-                        </div>
+                            service={service}
+                            index={index}
+                            parentOpenIndex={openIndex}
+                            onToggle={handleCardToggle}
+                        />
                     );
                 })}
             </section>

@@ -1,0 +1,30 @@
+.accordionItem {
+  width: 100%;
+  background-color: #000000;
+}
+
+.stickyHeader {
+  position: sticky;
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  background-color: #000000;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.contentWrapper {
+  overflow: hidden;
+  transition: max-height 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+  max-height: 0;
+  opacity: 0;
+  background-color: #000000;
+}
+
+.contentWrapper.expanded {
+  max-height: 500px;
+  opacity: 1;
+}
+
+.contentInner {
+  padding: 4px 20px 24px 84px; /* pl-[calc(60px+1.25rem+0.75rem)] */
+}
