@@ -309,7 +309,7 @@ export default function ServicesPage() {
             <section
                 ref={mobileSectionRef}
                 className="md:hidden w-full bg-black relative"
-                style={{ minHeight: `${SERVICES.length * 120}vh` }}
+                style={{ minHeight: `${SERVICES.length * 50}vh` }}
             >
                 {/* ① Sticky image — stays locked at top while cards scroll beneath */}
                 <div
