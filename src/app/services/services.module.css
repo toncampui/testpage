@@ -2,11 +2,22 @@
   width: 100%;
   background-color: #000000;
   overflow: visible;
+  display: block;
+  height: auto;
+  margin: 0;
+  padding: 0;
 }
 
 .stickyHeader {
+  position: sticky;
+  top: calc(64px + (100vw * 9 / 16));
   background-color: #000000;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin: 0;
+  padding: 0;
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 .contentWrapper {
@@ -18,9 +29,11 @@
   transform: translateZ(0);
   -webkit-transform: translateZ(0);
   overflow: hidden;
-  transition: grid-template-rows 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+  transition: grid-template-rows 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
   opacity: 0;
   background-color: #000000;
+  margin: 0;
+  padding: 0;
 }
 
 .contentWrapper.expanded {
@@ -30,6 +43,6 @@
 
 .contentInner {
   min-height: 0;
-  padding: 4px 20px 24px 84px; /* pl-[calc(60px+1.25rem+0.75rem)] */
+  padding: 16px 20px 24px 84px; /* pl-[calc(60px+1.25rem+0.75rem)] */
 }
 

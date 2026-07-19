@@ -27,12 +27,14 @@ interface MobileAccordionItemProps {
     service: any;
     index: number;
     parentOpenIndex: number;
+    onToggle: (index: number) => void;
 }
 
 function MobileAccordionItem({
     service,
     index,
     parentOpenIndex,
+    onToggle,
 }: MobileAccordionItemProps) {
     const isExpanded = parentOpenIndex === index;
 
@@ -40,10 +42,12 @@ function MobileAccordionItem({
         <div
             data-mobile-item
             data-index={index}
-            className="relative w-full bg-black overflow-visible"
+            className="relative w-full bg-black overflow-visible block h-auto m-0 p-0"
         >
             {/* Sticky Header — ALWAYS sticky, snaps to the top and is pushed away naturally */}
-            <div
+            <button
+                type="button"
+                onClick={() => onToggle(index)}
                 style={{
                     position: "sticky",
                     top: `calc(64px + (100vw * 9 / 16))`,
@@ -52,12 +56,9 @@ function MobileAccordionItem({
                     WebkitBackfaceVisibility: "hidden",
                     backfaceVisibility: "hidden",
                 }}
-                className={styles.stickyHeader}
+                className={`${styles.stickyHeader} w-full text-left cursor-pointer border-0 outline-none`}
             >
-                <div
-                    className="w-full px-5 py-4 flex items-center justify-between bg-black border-t border-white/10"
-                    style={{ pointerEvents: "none" }}
-                >
+                <div className="w-full px-5 py-4 flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         <span className={`text-[10px] font-mono uppercase tracking-widest w-[60px] text-left transition-colors duration-300 ${isExpanded ? "text-[#863ecc]" : "text-white/40"}`}>
                             [ 0{index + 1} ] -
@@ -73,12 +74,12 @@ function MobileAccordionItem({
                         ▾
                     </span>
                 </div>
-            </div>
+            </button>
 
             {/* Description — directly below the sticky header in normal flow */}
             <div className={`${styles.contentWrapper} ${isExpanded ? styles.expanded : ""}`}>
                 <div className={styles.contentInner}>
-                    <p className="text-[13px] text-gray-400 leading-relaxed">
+                    <p className="text-[13px] text-gray-400 leading-relaxed m-0 p-0">
                         {service.description}
                     </p>
                 </div>
@@ -286,41 +287,9 @@ export default function ServicesPage() {
     };
 
 
-    // Mobile scroll spy logic for active-only accordion toggling
-    useEffect(() => {
-        if (typeof window === "undefined" || window.innerWidth >= 768) return;
-
-        const observer = new IntersectionObserver(
-            (entries) => {
-                entries.forEach((entry) => {
-                    const index = Number(entry.target.getAttribute("data-index"));
-                    if (entry.isIntersecting) {
-                        setOpenIndex(index);
-                    } else {
-                        // If we scroll above the first element, keep first element expanded
-                        if (index === 0 && entry.boundingClientRect.top > 0) {
-                            setOpenIndex(0);
-                        }
-                        // If we scroll past the last element, collapse the last element
-                        if (index === SERVICES.length - 1 && entry.boundingClientRect.top < 0) {
-                            setOpenIndex(-1);
-                        }
-                    }
-                });
-            },
-            {
-                // Thin trigger line just at the sticky image boundary (38% from top of screen)
-                rootMargin: "-38% 0px -60% 0px",
-                threshold: 0,
-            }
-        );
-
-        // Observe all data-mobile-item elements
-        const targets = document.querySelectorAll("[data-mobile-item]");
-        targets.forEach((target) => observer.observe(target));
-
-        return () => observer.disconnect();
-    }, [SERVICES.length]);
+    const handleCardToggle = (index: number) => {
+        setOpenIndex(prev => prev === index ? -1 : index);
+    };
 
 
     return (
@@ -379,6 +348,7 @@ export default function ServicesPage() {
                             service={service}
                             index={index}
                             parentOpenIndex={openIndex}
+                            onToggle={handleCardToggle}
                         />
                     );
                 })}
