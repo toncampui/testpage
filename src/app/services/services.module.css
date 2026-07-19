@@ -2,10 +2,10 @@
   width: 100%;
   background-color: #000000;
   margin: 0;
-  padding: 24px 20px;
+  padding: 32px 20px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   opacity: 0;
-  transform: translateX(-20px);
+  transform: translateY(20px);
   will-change: opacity, transform;
   transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
   display: block;
@@ -14,7 +14,7 @@
 
 .revealItem.revealed {
   opacity: 1;
-  transform: translateX(0);
+  transform: translateY(0);
 }
 
 .itemHeader {
@@ -24,21 +24,8 @@
 }
 
 .descriptionWrapper {
-  display: grid;
-  grid-template-rows: 0fr;
-  will-change: grid-template-rows, opacity;
-  overflow: hidden;
-  transition: grid-template-rows 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
-  opacity: 0;
-}
-
-.descriptionWrapper.focused {
-  grid-template-rows: 1fr;
-  opacity: 1;
-}
-
-.descriptionInner {
-  min-height: 0;
   padding: 12px 0 0 84px; /* Align description text below the title text */
+  display: block;
+  height: auto;
 }
 

@@ -26,21 +26,16 @@ const HIDE_SCROLLBAR_CSS = `
 interface MobileRevealItemProps {
     service: any;
     index: number;
-    parentActiveIndex: number;
-    setActiveIndex: (index: number) => void;
 }
 
 function MobileRevealItem({
     service,
     index,
-    parentActiveIndex,
-    setActiveIndex,
 }: MobileRevealItemProps) {
     const [hasRevealed, setHasRevealed] = useState(false);
     const itemRef = useRef<HTMLDivElement>(null);
-    const isFocused = parentActiveIndex === index;
 
-    // 1. Scroll-in entry reveal animation (opacity/translate)
+    // Scroll-in entry reveal animation (opacity/translate)
     useEffect(() => {
         if (typeof window === "undefined" || window.innerWidth >= 768) return;
         const observer = new IntersectionObserver(
@@ -60,29 +55,6 @@ function MobileRevealItem({
         return () => observer.disconnect();
     }, []);
 
-    // 2. Focus trigger (when the item is the focal point near the top of the viewport)
-    useEffect(() => {
-        if (typeof window === "undefined" || window.innerWidth >= 768) return;
-        const observer = new IntersectionObserver(
-            (entries) => {
-                entries.forEach((entry) => {
-                    if (entry.isIntersecting) {
-                        setActiveIndex(index);
-                    }
-                });
-            },
-            {
-                // Trigger area is near the top (around the sticky image boundary)
-                rootMargin: "-35% 0px -55% 0px",
-                threshold: 0,
-            }
-        );
-        if (itemRef.current) {
-            observer.observe(itemRef.current);
-        }
-        return () => observer.disconnect();
-    }, [index, setActiveIndex]);
-
     return (
         <div
             ref={itemRef}
@@ -92,21 +64,19 @@ function MobileRevealItem({
         >
             {/* Title / Header */}
             <div className={styles.itemHeader}>
-                <span className={`text-[10px] font-mono uppercase tracking-widest w-[60px] text-left transition-colors duration-300 ${isFocused ? "text-[#863ecc]" : "text-white/40"}`}>
+                <span className="text-[10px] font-mono uppercase tracking-widest w-[60px] text-left text-white/40">
                     [ 0{index + 1} ] -
                 </span>
-                <span className={`font-black uppercase tracking-tight leading-tight transition-all duration-300 ${isFocused ? "text-lg text-white" : "text-sm text-white/50"}`}>
+                <span className="font-black uppercase tracking-tight leading-tight text-lg text-white">
                     {service.title.toUpperCase()}
                 </span>
             </div>
 
-            {/* Description — reveals smoothly when focused */}
-            <div className={`${styles.descriptionWrapper} ${isFocused ? styles.focused : ""}`}>
-                <div className={styles.descriptionInner}>
-                    <p className="text-[13px] text-gray-400 leading-relaxed m-0 p-0">
-                        {service.description}
-                    </p>
-                </div>
+            {/* Description — fully expanded by default */}
+            <div className={styles.descriptionWrapper}>
+                <p className="text-[13px] text-gray-400 leading-relaxed m-0 p-0">
+                    {service.description}
+                </p>
             </div>
         </div>
     );
@@ -318,52 +288,35 @@ export default function ServicesPage() {
                 <div className="absolute top-1/2 left-0 -translate-y-1/2 -translate-x-1/2 w-[70vh] h-[70vh] rounded-full bg-[#863ecc]/8 blur-[160px]" />
             </div>
 
-            {/* ── MOBILE-ONLY: Scroll-Reveal & Focus List ─────────────────────────
-                 • Discards complex accordion logic. Titles are always visible.
-                 • IntersectionObserver triggers smooth scroll-in animations.
-                 • Focal point updates activeIndex and crossfades the top image.
-                 • Focus class reveals active item's description smoothly.         */}
+            {/* ── MOBILE-ONLY: Clean Scroll-Reveal List ───────────────────────────
+                 • Discards sticky stacking and accordion toggling.
+                 • Standard vertical list layout where all content is visible.
+                 • Simple fade-in and translateY slide-up entry animations.        */}
             <section className="md:hidden w-full bg-black relative flex flex-col items-start justify-start h-auto m-0 p-0 overflow-visible">
 
-                {/* ① Sticky image — sticks at top while user scrolls the list */}
+                {/* ① Hero image — scrolls naturally in the flow */}
                 <div
-                    className="sticky top-[64px] z-40 w-full overflow-hidden bg-black"
+                    className="w-full overflow-hidden bg-black relative"
                     style={{ aspectRatio: "16/9" }}
                 >
-                    <AnimatePresence mode="popLayout">
-                        <motion.div
-                            key={`mob-img-${activeIndex}`}
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            transition={{ duration: 0.35, ease: "easeInOut" }}
-                            className="absolute inset-0"
-                        >
-                            <Image
-                                src={SERVICES[activeIndex].image}
-                                alt={SERVICES[activeIndex].title}
-                                fill
-                                className="object-cover"
-                                sizes="100vw"
-                                priority
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/15 to-transparent pointer-events-none" />
-                        </motion.div>
-                    </AnimatePresence>
-                    <span className="absolute bottom-3 left-4 z-10 text-[9px] font-mono uppercase tracking-[0.3em] text-[#863ecc]">
-                        0{activeIndex + 1} / 0{SERVICES.length} — {SERVICES[activeIndex].title}
-                    </span>
+                    <Image
+                        src={SERVICES[0].image}
+                        alt="Services Hero"
+                        fill
+                        className="object-cover"
+                        sizes="100vw"
+                        priority
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/15 to-transparent pointer-events-none" />
                 </div>
 
-                {/* ② Scroll-Reveal items — each item has scroll-in and focus triggers */}
+                {/* ② Scroll-Reveal items */}
                 {SERVICES.map((service, index) => {
                     return (
                         <MobileRevealItem
                             key={service.id}
                             service={service}
                             index={index}
-                            parentActiveIndex={activeIndex}
-                            setActiveIndex={setActiveIndex}
                         />
                     );
                 })}
