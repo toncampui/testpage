@@ -27,72 +27,40 @@ interface MobileAccordionItemProps {
     service: any;
     index: number;
     parentOpenIndex: number;
-    onToggle: (index: number) => void;
-    activeHeight: number;
-    isClickLockedRef: React.RefObject<boolean>;
 }
 
 function MobileAccordionItem({
     service,
     index,
     parentOpenIndex,
-    onToggle,
-    activeHeight,
-    isClickLockedRef,
 }: MobileAccordionItemProps) {
     const [isExpanded, setIsExpanded] = useState(index === 0);
-    const itemRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         setIsExpanded(parentOpenIndex === index);
     }, [parentOpenIndex, index]);
 
-    useEffect(() => {
-        if (typeof window === "undefined" || window.innerWidth >= 768) return;
-        const observer = new IntersectionObserver(
-            (entries) => {
-                entries.forEach((entry) => {
-                    // Update index if this element is intersecting and click override is not active
-                    if (
-                        entry.isIntersecting &&
-                        !isClickLockedRef.current &&
-                        parentOpenIndex !== index
-                    ) {
-                        onToggle(index);
-                    }
-                });
-            },
-            {
-                // Trigger trigger point closer to the top of the viewport
-                rootMargin: "-25% 0px -55% 0px",
-                threshold: 0.1,
-            }
-        );
-        if (itemRef.current) {
-            observer.observe(itemRef.current);
-        }
-        return () => observer.disconnect();
-    }, [index, onToggle, parentOpenIndex, isClickLockedRef]);
-
     return (
-        <div ref={itemRef} className={styles.accordionItem}>
+        <div
+            data-mobile-item
+            data-index={index}
+            className="relative w-full h-[70vh] bg-black"
+        >
             {/* Sticky title row — GPU-promoted so Safari won't flicker */}
             <div
                 style={{
                     position: "sticky",
-                    top: `calc(64px + (100vw * 9 / 16) + ${index * 52}px + ${index > parentOpenIndex ? activeHeight : 0}px)`,
+                    top: `calc(64px + (100vw * 9 / 16))`,
                     zIndex: 10 + index,
-                    willChange: "transform, top",
+                    willChange: "transform",
                     WebkitBackfaceVisibility: "hidden",
                     backfaceVisibility: "hidden",
                 }}
                 className={styles.stickyHeader}
             >
-                <button
-                    type="button"
-                    onClick={() => onToggle(index)}
-                    className="w-full px-5 py-4 flex items-center justify-between bg-transparent border-0 cursor-pointer focus:outline-none"
-                    style={{ touchAction: "manipulation", pointerEvents: "auto" }}
+                <div
+                    className="w-full px-5 py-4 flex items-center justify-between bg-transparent border-0"
+                    style={{ pointerEvents: "none" }}
                 >
                     <div className="flex items-center gap-3">
                         <span className={`text-[10px] font-mono uppercase tracking-widest w-[60px] text-left transition-colors duration-300 ${isExpanded ? "text-[#863ecc]" : "text-white/40"}`}>
@@ -108,12 +76,12 @@ function MobileAccordionItem({
                     >
                         ▾
                     </span>
-                </button>
+                </div>
             </div>
 
             {/* Description — in normal flow, NOT inside sticky div */}
             <div className={`${styles.contentWrapper} ${isExpanded ? styles.expanded : ""}`}>
-                <div id={`desc-content-${index}`} className={styles.contentInner}>
+                <div className={styles.contentInner}>
                     <p className="text-[13px] text-gray-400 leading-relaxed">
                         {service.description}
                     </p>
@@ -130,8 +98,6 @@ export default function ServicesPage() {
     const [activeIndex, setActiveIndex] = useState(0);
     // Mobile accordion: which card is open (0 = first by default, -1 = none)
     const [openIndex, setOpenIndex] = useState<number>(0);
-    const [activeHeight, setActiveHeight] = useState<number>(0);
-    const isClickLockedRef = useRef(false);
     const isScrollingRef = useRef(false);
     const prevDeltaYRef = useRef(0);
     const resetDeltaTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -324,31 +290,41 @@ export default function ServicesPage() {
     };
 
 
-    // Toggle card expansion and lock click overrides
-    const handleCardToggle = (index: number) => {
-        setOpenIndex(prev => prev === index ? -1 : index);
-        isClickLockedRef.current = true;
-        setTimeout(() => {
-            isClickLockedRef.current = false;
-        }, 800);
-    };
-
-    // Effect to measure active description height
+    // Mobile scroll spy logic for active-only accordion toggling
     useEffect(() => {
-        if (openIndex === -1) {
-            setActiveHeight(0);
-            return;
-        }
-        const measure = () => {
-            const el = document.getElementById(`desc-content-${openIndex}`);
-            if (el) {
-                setActiveHeight(el.scrollHeight);
+        if (typeof window === "undefined" || window.innerWidth >= 768) return;
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    const index = Number(entry.target.getAttribute("data-index"));
+                    if (entry.isIntersecting) {
+                        setOpenIndex(index);
+                    } else {
+                        // If we scroll above the first element, keep first element expanded
+                        if (index === 0 && entry.boundingClientRect.top > 0) {
+                            setOpenIndex(0);
+                        }
+                        // If we scroll past the last element, collapse the last element
+                        if (index === SERVICES.length - 1 && entry.boundingClientRect.top < 0) {
+                            setOpenIndex(-1);
+                        }
+                    }
+                });
+            },
+            {
+                // Thin trigger line just at the sticky image boundary (38% from top of screen)
+                rootMargin: "-38% 0px -60% 0px",
+                threshold: 0,
             }
-        };
-        measure();
-        const t = setTimeout(measure, 60);
-        return () => clearTimeout(t);
-    }, [openIndex]);
+        );
+
+        // Observe all data-mobile-item elements
+        const targets = document.querySelectorAll("[data-mobile-item]");
+        targets.forEach((target) => observer.observe(target));
+
+        return () => observer.disconnect();
+    }, [SERVICES.length]);
 
 
     return (
@@ -407,9 +383,6 @@ export default function ServicesPage() {
                             service={service}
                             index={index}
                             parentOpenIndex={openIndex}
-                            onToggle={handleCardToggle}
-                            activeHeight={activeHeight}
-                            isClickLockedRef={isClickLockedRef}
                         />
                     );
                 })}
