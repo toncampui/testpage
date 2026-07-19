@@ -526,10 +526,14 @@ export default function ServicesPage() {
             {/* Technical Capabilities Stacking Cards Section */}
             <section
                 ref={techContainerRef}
-                className="relative z-20 w-full bg-black border-t border-white/5 pb-48 md:pb-64"
+                style={{ backgroundColor: "#000000" }}
+                className="relative z-20 w-full bg-[#000000] border-t border-white/5 pb-48 md:pb-64"
             >
                 {/* Sticky Header */}
-                <div className="sticky top-[64px] z-30 pt-8 pb-6 bg-black text-center px-6 mb-4">
+                <div
+                    style={{ backgroundColor: "#000000" }}
+                    className="sticky top-[64px] z-30 pt-8 pb-8 bg-[#000000] text-center px-6"
+                >
                     <h2 className="-mt-4 md:-mt-6 text-3xl md:text-5xl font-black tracking-tight uppercase mb-4 text-white">
                         {t.services.title}
                     </h2>
@@ -538,7 +542,10 @@ export default function ServicesPage() {
                     </p>
                 </div>
 
-                <div className="w-full max-w-5xl mx-auto flex flex-col px-6 sm:px-12 md:px-16">
+                <div
+                    style={{ backgroundColor: "#000000" }}
+                    className="w-full max-w-5xl mx-auto flex flex-col px-6 sm:px-12 md:px-16 bg-[#000000] pt-6"
+                >
                     {TECHNICAL_SERVICES.map((tech, index) => {
                         return (
                             <div
@@ -548,9 +555,9 @@ export default function ServicesPage() {
                                     top: `${220 + index * 24}px`,
                                     zIndex: 10 + index,
                                     height: "auto",
-                                    marginTop: index === 0 ? "48px" : undefined,
+                                    backgroundColor: "#000000",
                                 }}
-                                className={`w-full bg-black flex flex-col justify-start select-none py-6 mb-12 md:mb-16 ${index === 0 ? "pb-24" : ""}`}
+                                className={`w-full bg-[#000000] flex flex-col justify-start select-none py-6 mb-12 md:mb-16 ${index === 0 ? "pb-24 mt-4" : ""}`}
                             >
                                 {/* Panel Header */}
                                 <div className="flex items-center justify-between w-full pb-3 border-b border-white/10">
