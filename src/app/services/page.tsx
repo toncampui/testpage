@@ -578,9 +578,15 @@ export default function ServicesPage() {
                         const isCurrent = index === activeTechIndex;
                         const isPassed = index < activeTechIndex;
 
-                        const computedZIndex = isCurrent ? 30 : isPassed ? 0 : 10 + index;
+                        // Inverted Z-Index Back-to-Front stack hierarchy:
+                        // Group 01 (FOTO): z-index 1 (Bottom)
+                        // Group 02: z-index 2
+                        // Group 03: z-index 3
+                        // Group 04: z-index 4
+                        // Group 05 (RENDER 3D): z-index 5 (Top / Highest)
+                        const invertedZIndex = 1 + index;
                         const computedOpacity = isPassed ? 0 : 1;
-                        const computedTransform = isPassed ? "translateY(-40px)" : "translateY(0)";
+                        const computedTransform = isPassed ? "translateY(-20px)" : "translateY(0)";
 
                         return (
                             <div
@@ -590,11 +596,11 @@ export default function ServicesPage() {
                                 style={{
                                     position: "sticky",
                                     top: "220px",
-                                    zIndex: computedZIndex,
+                                    zIndex: invertedZIndex,
                                     opacity: computedOpacity,
                                     transform: computedTransform,
                                     pointerEvents: isPassed ? "none" : "auto",
-                                    transition: "opacity 0.4s ease-in-out, transform 0.4s ease-in-out, z-index 0.4s ease-in-out",
+                                    transition: "opacity 0.4s ease-in-out, transform 0.4s ease-in-out",
                                     height: "auto",
                                     backgroundColor: "#000000",
                                 }}
