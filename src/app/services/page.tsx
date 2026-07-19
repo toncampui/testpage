@@ -44,13 +44,13 @@ function MobileAccordionItem({
         <div
             data-mobile-item
             data-index={index}
-            className="relative w-full h-[70vh] bg-black overflow-visible"
+            className="relative w-full bg-black overflow-visible"
         >
             {/* Sticky Card Wrapper containing both header and description */}
             <div
                 style={{
-                    position: "sticky",
-                    top: `calc(64px + (100vw * 9 / 16))`,
+                    position: parentOpenIndex === index ? "sticky" : "relative",
+                    top: parentOpenIndex === index ? `calc(64px + (100vw * 9 / 16))` : undefined,
                     zIndex: 10 + index,
                     willChange: "transform",
                     WebkitBackfaceVisibility: "hidden",
