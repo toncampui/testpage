@@ -518,7 +518,7 @@ export default function ServicesPage() {
                 className="relative z-20 w-full bg-black border-t border-white/5 pb-24 md:pb-32"
             >
                 {/* Sticky Header */}
-                <div className="sticky top-[48px] -mt-[48px] pt-[68px] pb-6 bg-black z-30 text-center px-6 mb-4">
+                <div className="sticky top-[64px] -mt-[64px] pt-[80px] pb-6 bg-black z-30 text-center px-6 mb-4">
                     <h2 className="text-3xl md:text-5xl font-black tracking-tight uppercase mb-4 text-white">
                         {t.services.title}
                     </h2>
