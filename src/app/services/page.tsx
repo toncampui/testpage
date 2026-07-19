@@ -251,7 +251,7 @@ export default function ServicesPage() {
                  • Hero image remains position: sticky at the top, crossfading
                    automatically as different items scroll past the focal zone.
                  • IntersectionObserver triggers entry slide-up reveal effects.    */}
-            <section className="md:hidden w-full bg-black relative flex flex-col items-start justify-start h-auto m-0 pt-[64px] px-0 pb-0 overflow-visible">
+            <section className="md:hidden w-full bg-black relative flex flex-col items-start justify-start h-auto m-0 pt-[64px] px-0 pb-[30vh] overflow-visible">
 
                 {/* ① Sticky hero image — stays stuck at top, updating dynamically */}
                 <div
