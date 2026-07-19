@@ -249,9 +249,8 @@ export default function Navbar() {
                     zIndex: 10000,
                     transform: "translateZ(0)",
                     WebkitTransform: "translateZ(0)",
-                    paddingBottom: "2px",
                 }}
-                className={`fixed top-0 left-0 right-0 py-4 border-b transition-all duration-300 ease-in-out ${
+                className={`fixed top-0 left-0 right-0 py-6 border-b transition-all duration-300 ease-in-out ${
                     isTransparent
                         ? "bg-transparent border-transparent shadow-none"
                         : "bg-[#000000] backdrop-blur-md border-white/10 shadow-lg scrolled"
