@@ -18,7 +18,7 @@ const HIDE_SCROLLBAR_CSS = `
         scrollbar-width: none !important;
     }
     html, body {
-        scroll-behavior: smooth;
+        /* scroll-behavior: smooth removed — conflicts with iOS Safari native momentum */
     }
 `;
 
@@ -27,8 +27,6 @@ export default function ServicesPage() {
     const containerRef = useRef<HTMLDivElement>(null);
     const techContainerRef = useRef<HTMLDivElement>(null);
     const [activeIndex, setActiveIndex] = useState(0);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [activeTechIndex, setActiveTechIndex] = useState(0);
     // Mobile: which accordion card is expanded (0 = first item open by default)
     const [openIndex, setOpenIndex] = useState<number>(0);
     const mobileSectionRef = useRef<HTMLDivElement>(null);
@@ -86,57 +84,50 @@ export default function ServicesPage() {
         },
     ];
 
+    // ── SINGLE UNIFIED PASSIVE SCROLL LISTENER ────────────────────────────
+    // Replaces two separate listeners. passive:true lets the browser
+    // begin compositing before the JS callback returns (no jank).
     useEffect(() => {
         const handleScroll = () => {
             if (typeof window === "undefined") return;
-
             const scrollY = window.scrollY;
             const viewportH = window.innerHeight;
+            const isMobile = window.innerWidth < 768;
 
-            // 1. Showcase active index and parallax progress listener
-            if (containerRef.current) {
-                const rect = containerRef.current.getBoundingClientRect();
-                const offsetTop = scrollY + rect.top;
-                const totalHeight = containerRef.current.offsetHeight;
-                const scrollable = totalHeight - viewportH;
-                const relativeScroll = Math.max(Math.min(scrollY - offsetTop, scrollable), 0);
-                const progress = scrollable > 0 ? relativeScroll / scrollable : 0;
-
-                // Map progress (0 to 1) to translateY (24px to -24px)
-                // Scrolling down (progress increases) -> translateY goes negative (slides up)
-                // Scrolling up (progress decreases) -> translateY goes positive (slides down)
-                const parallaxY = 24 - progress * 48;
-                setDesktopParallaxY(parallaxY);
-            }
-
-            const showIndex = Math.min(
-                Math.max(Math.round(scrollY / viewportH), 0),
-                SERVICES.length - 1
-            );
-            setActiveIndex(showIndex);
-
-            // 3. Technical Capabilities active index listener
-            const elements = document.querySelectorAll("[data-tech-item]");
-            let closestIndex = 0;
-            let closestDist = Infinity;
-            const centerY = window.innerHeight / 2;
-
-            elements.forEach((el, index) => {
-                const rect = el.getBoundingClientRect();
-                const elCenter = rect.top + rect.height / 2;
-                const dist = Math.abs(elCenter - centerY);
-                if (dist < closestDist) {
-                    closestDist = dist;
-                    closestIndex = index;
+            if (!isMobile) {
+                // ─ Desktop: parallax + active index ────────────────────────
+                if (containerRef.current) {
+                    const rect = containerRef.current.getBoundingClientRect();
+                    const offsetTop = scrollY + rect.top;
+                    const totalHeight = containerRef.current.offsetHeight;
+                    const scrollable = totalHeight - viewportH;
+                    const relativeScroll = Math.max(Math.min(scrollY - offsetTop, scrollable), 0);
+                    const progress = scrollable > 0 ? relativeScroll / scrollable : 0;
+                    setDesktopParallaxY(24 - progress * 48);
                 }
-            });
-
-            setActiveTechIndex(closestIndex);
+                setActiveIndex(
+                    Math.min(Math.max(Math.round(scrollY / viewportH), 0), SERVICES.length - 1)
+                );
+            } else {
+                // ─ Mobile: accordion open-index (early trigger at ~33% of step) ───
+                if (isClickLockedRef.current || !mobileSectionRef.current) return;
+                const sectionTop = scrollY + mobileSectionRef.current.getBoundingClientRect().top;
+                const relScroll = Math.max(scrollY - sectionTop, 0);
+                const totalScrollable = mobileSectionRef.current.offsetHeight - viewportH;
+                if (totalScrollable <= 0) return;
+                const step = totalScrollable / (SERVICES.length - 1);
+                // Multiply by 1.5 so the trigger fires at ~67% of the step distance
+                // (instead of 50% with Math.round) — feels 1.5× more responsive.
+                const idx = Math.min(
+                    Math.max(Math.floor((relScroll / step) * 1.5), 0),
+                    SERVICES.length - 1
+                );
+                setOpenIndex(idx);
+            }
         };
 
-        window.addEventListener("scroll", handleScroll);
+        window.addEventListener("scroll", handleScroll, { passive: true });
         const timer = setTimeout(handleScroll, 100);
-
         return () => {
             window.removeEventListener("scroll", handleScroll);
             clearTimeout(timer);
@@ -246,23 +237,6 @@ export default function ServicesPage() {
         }
     };
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const handleTechClick = (index: number) => {
-        const elements = document.querySelectorAll("[data-tech-item]");
-        const targetEl = elements[index];
-        if (typeof window !== "undefined" && targetEl) {
-            const scrollTop = window.scrollY;
-            const rect = targetEl.getBoundingClientRect();
-            const elementCenter = scrollTop + rect.top + rect.height / 2;
-            const viewportCenter = window.innerHeight / 2;
-            const scrollTarget = elementCenter - viewportCenter;
-
-            window.scrollTo({
-                top: scrollTarget,
-                behavior: "smooth"
-            });
-        }
-    };
 
     // Toggle open card; click-locks for 700ms so scroll can't immediately override
     const handleCardToggle = (index: number) => {
@@ -271,27 +245,6 @@ export default function ServicesPage() {
         setTimeout(() => { isClickLockedRef.current = false; }, 700);
     };
 
-    // ── Mobile scroll-driven accordion (passive, no preventDefault) ───────
-    useEffect(() => {
-        if (typeof window === "undefined") return;
-        const handleMobileScroll = () => {
-            if (window.innerWidth >= 768) return;
-            if (isClickLockedRef.current || !mobileSectionRef.current) return;
-            const scrollY = window.scrollY;
-            const sectionTop = scrollY + mobileSectionRef.current.getBoundingClientRect().top;
-            const relScroll = Math.max(scrollY - sectionTop, 0);
-            const totalScrollable = mobileSectionRef.current.offsetHeight - window.innerHeight;
-            if (totalScrollable <= 0) return;
-            const step = totalScrollable / (SERVICES.length - 1);
-            const idx = Math.min(
-                Math.max(Math.round(relScroll / step), 0),
-                SERVICES.length - 1
-            );
-            setOpenIndex(idx);
-        };
-        window.addEventListener("scroll", handleMobileScroll, { passive: true });
-        return () => window.removeEventListener("scroll", handleMobileScroll);
-    }, [SERVICES.length]);
 
     return (
         <main className="min-h-screen relative bg-black text-white selection:bg-[#863ecc] selection:text-black">
