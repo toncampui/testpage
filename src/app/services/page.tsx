@@ -276,42 +276,60 @@ export default function ServicesPage() {
                 <div className="absolute top-1/2 left-0 -translate-y-1/2 -translate-x-1/2 w-[70vh] h-[70vh] rounded-full bg-[#863ecc]/8 blur-[160px]" />
             </div>
 
-            {/* ── MOBILE-ONLY: Unified Sticky-Stack Card Deck ──────────────────────
-                 Same position:sticky pattern as the Technical Capabilities section.
-                 Pure CSS stacking — zero JS scroll listeners on mobile. */}
-            <section className="md:hidden w-full bg-black relative pb-12">
-                <div className="w-full flex flex-col px-4 pt-8">
+            {/* ── MOBILE-ONLY: Dynamic Image + Accordion List ──────────────────────
+                 • Sticky image container updates its source when openIndex changes
+                 • Accordion list below — tap to expand, image crossfades instantly
+                 • Zero JS scroll listeners, zero preventDefault, pure React state */}
+            <section className="md:hidden w-full bg-black relative">
+
+                {/* ① Sticky image — stays in view while user scrolls accordion list */}
+                <div
+                    className="sticky top-[64px] w-full z-20 overflow-hidden bg-black"
+                    style={{ aspectRatio: "16/9" }}
+                >
+                    <AnimatePresence mode="popLayout">
+                        <motion.div
+                            key={`mob-img-${openIndex}`}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.4, ease: "easeInOut" }}
+                            className="absolute inset-0"
+                        >
+                            <Image
+                                src={SERVICES[openIndex < 0 ? 0 : openIndex].image}
+                                alt={SERVICES[openIndex < 0 ? 0 : openIndex].title}
+                                fill
+                                className="object-cover"
+                                sizes="100vw"
+                                priority
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/15 to-transparent pointer-events-none" />
+                        </motion.div>
+                    </AnimatePresence>
+
+                    {/* Counter badge */}
+                    <span className="absolute bottom-3 left-4 z-10 text-[9px] font-mono uppercase tracking-[0.3em] text-[#863ecc]">
+                        0{(openIndex < 0 ? 0 : openIndex) + 1} / 0{SERVICES.length}
+                        {" — "}{SERVICES[openIndex < 0 ? 0 : openIndex].title}
+                    </span>
+                </div>
+
+                {/* ② Accordion list — normal document flow, scrolls under the sticky image */}
+                <div className="w-full flex flex-col">
                     {SERVICES.map((service, index) => {
                         const isOpen = index === openIndex;
                         return (
                             <div
                                 key={service.id}
+                                className="w-full border-t border-white/10 bg-black"
                                 style={{
-                                    position: "sticky",
-                                    top: `${64 + index * 20}px`,
-                                    zIndex: 10 + index,
                                     willChange: "transform",
                                     WebkitBackfaceVisibility: "hidden",
                                     backfaceVisibility: "hidden",
                                 }}
-                                className="w-full bg-neutral-950 border border-white/10 rounded-2xl overflow-hidden mb-3 shadow-xl"
                             >
-                                {/* Card image — always visible */}
-                                <div className="relative w-full aspect-[16/9] overflow-hidden">
-                                    <Image
-                                        src={service.image}
-                                        alt={service.title}
-                                        fill
-                                        className="object-cover"
-                                        sizes="100vw"
-                                    />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent pointer-events-none" />
-                                    <span className="absolute top-3 left-4 text-[9px] font-mono uppercase tracking-[0.3em] text-[#863ecc]">
-                                        0{index + 1} / 0{SERVICES.length}
-                                    </span>
-                                </div>
-
-                                {/* Accordion trigger */}
+                                {/* Title row — tap to toggle */}
                                 <button
                                     type="button"
                                     onClick={() => handleCardToggle(index)}
@@ -328,7 +346,7 @@ export default function ServicesPage() {
                                     </div>
                                     {/* Chevron */}
                                     <span
-                                        className="shrink-0 text-[#863ecc] transition-transform duration-300 text-lg leading-none"
+                                        className="shrink-0 text-[#863ecc] text-lg leading-none transition-transform duration-300"
                                         style={{ transform: isOpen ? "rotate(180deg)" : "rotate(0deg)" }}
                                     >
                                         ▾
@@ -346,7 +364,7 @@ export default function ServicesPage() {
                                             transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
                                             style={{ overflow: "hidden" }}
                                         >
-                                            <div className="px-5 pb-6 border-t border-white/5 pt-3">
+                                            <div className="px-5 pb-6 pl-[calc(60px+1.25rem+0.75rem)] border-l-0">
                                                 <p className="text-[13px] text-gray-400 leading-relaxed">
                                                     {service.description}
                                                 </p>
@@ -359,6 +377,7 @@ export default function ServicesPage() {
                     })}
                 </div>
             </section>
+
 
 
             {/* ── DESKTOP: Scroll-snap showcase (hidden on mobile) ─────────── */}
