@@ -34,14 +34,39 @@ function MobileRevealItem({
     service,
     index,
     parentActiveIndex,
+    isLast,
 }: MobileRevealItemProps) {
+    const [hasRevealed, setHasRevealed] = useState(false);
+    const itemRef = useRef<HTMLDivElement>(null);
     const isFocused = parentActiveIndex === index;
+
+    // Scroll-in entry reveal animation (opacity/translate)
+    useEffect(() => {
+        if (typeof window === "undefined" || window.innerWidth >= 768) return;
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        setHasRevealed(true);
+                        observer.unobserve(entry.target); // Reveal only once
+                    }
+                });
+            },
+            { threshold: 0.1, rootMargin: "0px 0px -10% 0px" }
+        );
+        if (itemRef.current) {
+            observer.observe(itemRef.current);
+        }
+        return () => observer.disconnect();
+    }, []);
 
     return (
         <div
+            ref={itemRef}
             data-mobile-item
             data-index={index}
-            className={`${styles.revealItem} ${isFocused ? styles.activeGroup : ""}`}
+            style={isLast ? { marginBottom: "40px" } : undefined}
+            className={`${styles.revealItem} ${hasRevealed ? styles.revealed : ""}`}
         >
             {/* Title / Header */}
             <div className={styles.itemHeader}>
@@ -53,7 +78,7 @@ function MobileRevealItem({
                 </span>
             </div>
 
-            {/* Description */}
+            {/* Description — fully visible by default */}
             <div className={styles.descriptionWrapper}>
                 <p className="text-[13px] text-gray-400 leading-relaxed m-0 p-0">
                     {service.description}
@@ -230,9 +255,8 @@ export default function ServicesPage() {
                    automatically as different items scroll past the focal zone.
                  • IntersectionObserver triggers entry slide-up reveal effects.    */}
             <section
-                id="mobile-services-section"
                 style={{ paddingBottom: "0px", backgroundColor: "#000000" }}
-                className="md:hidden w-full bg-black relative flex flex-col items-start justify-start min-h-[160vh] m-0 pt-[63px] px-0 overflow-visible"
+                className="md:hidden w-full bg-black relative flex flex-col items-start justify-start h-auto m-0 pt-[63px] px-0 overflow-visible"
             >
                 {/* Black Clipping Mask Shield behind Navbar (z-index: 999) */}
                 <div
@@ -279,8 +303,8 @@ export default function ServicesPage() {
                     </span>
                 </div>
 
-                {/* ② Stacking Card Container (z-index: 100) — occupies same visual space */}
-                <div className={`${styles.stackContainer}`} style={{ zIndex: 100 }}>
+                {/* ② Scroll-Reveal items container (z-index: 100) — slides behind sticky hero image */}
+                <div className="relative w-full bg-black" style={{ zIndex: 100 }}>
                     {SERVICES.map((service, index) => {
                         return (
                             <MobileRevealItem
@@ -288,9 +312,20 @@ export default function ServicesPage() {
                                 service={service}
                                 index={index}
                                 parentActiveIndex={activeIndex}
+                                isLast={index === SERVICES.length - 1}
                             />
                         );
                     })}
+
+                    {/* Invisible scroll spacer for mobile to push scroll area without visual layout gaps */}
+                    <div
+                        style={{
+                            height: "10px",
+                            opacity: 0,
+                            pointerEvents: "none"
+                        }}
+                        className="w-full shrink-0"
+                    />
                 </div>
             </section>
 
