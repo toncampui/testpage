@@ -5,6 +5,7 @@ import SmoothScroll from "./components/SmoothScroll";
 import Footer from "./components/Footer";
 import Navbar from "./components/Navbar";
 import { LanguageProvider } from "./context/LanguageContext";
+import SplashScreen from "./components/SplashScreen";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -27,6 +28,7 @@ export default function RootLayout({
       <body
         className={`${inter.variable} antialiased`}
       >
+        <SplashScreen />
         <LanguageProvider>
           <SmoothScroll>
             <Navbar />
