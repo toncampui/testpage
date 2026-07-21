@@ -16,7 +16,7 @@ interface Project {
     category: Category;
     image: string;
     isVideo?: boolean;
-    layoutType: 1 | 2 | 3 | 4 | 5;
+    layoutType: 1 | 2 | 3 | 4 | 5 | 6;
     headline?: { en: string; ca: string; es: string };
     description: { en: string; ca: string; es: string };
     gallery?: string[];
@@ -37,7 +37,7 @@ const allProjects: Project[] = [
             es: "Diseño web integral y experiencia digital a medida para un nuevo referente gastronómico en Tarragona."
         },
         description: {
-            ca: "Creació des de zero de la nova plataforma web per a La Fonda de la Rambla Nova, dissenyada per reflectir l'essència del restaurant i facilitar la connexió amb els clients. El projecte inclou una presentació visual i cuidada de la carta i els menús, juntament amb un sistema de reserves online intuïtiu que simplifica al màxim el procés per al comensal. Una solució digital funcional i elegant que reforça la presència de marca al sector de la restauració.",
+            ca: "Creació des de zero de la nova plataforma web per a La Fonda de la Rambla Nova, dissenyada per reflectir l'essència del restaurant i facilitar la connexió amb os clients. El projecte inclou una presentació visual i cuidada de la carta i els menús, juntament amb un sistema de reserves online intuïtiu que simplifica al màxim el procés per al comensal. Una solució digital funcional i elegant que reforça la presència de marca al sector de la restauració.",
             en: "Creation from scratch of the new web platform for La Fonda de la Rambla Nova, designed to reflect the essence of the restaurant and facilitate connection with customers. The project includes a careful visual presentation of the menu, along with an intuitive online reservation system that simplifies the process for the diner as much as possible. A functional and elegant digital solution that reinforces brand presence in the restaurant sector.",
             es: "Creación desde cero de the nueva plataforma web para La Fonda de la Rambla Nova, diseñada para reflejar la esencia del restaurante y facilitar la conexión con los clientes. El proyecto incluye una presentación visual y cuidada de la carta y los menús, junto con un sistema de reservas online intuitivo que simplifica al máximo el proceso para el comensal. Una solución digital funcional y elegante que refuerza la presencia de marca en el sector de la restauración."
         },
@@ -71,6 +71,27 @@ const allProjects: Project[] = [
             "/testpage/sagrera_opening_2.webp"
         ],
         client: "Hotel La Sagrera"
+    },
+    {
+        id: 15,
+        title: "Ral·li 2000 Viratges",
+        category: "Design",
+        image: "/testpage/rally_thumbnail.webp",
+        layoutType: 6,
+        headline: {
+            ca: "Disseny i maquetació de la revista oficial del Ral·li 2000 Viratges per al Biela Club Manresa.",
+            en: "Design and layout of the official magazine for the 2000 Viratges Rally by Biela Club Manresa.",
+            es: "Diseño y maquetación de la revista oficial del Ral·li 2000 Viratges para el Biela Club Manresa."
+        },
+        description: {
+            ca: "Un projecte especialitzat en el sector del motor que combina el disseny visual amb la claredat informativa. La revista integra de manera estructurada els horaris oficials, mapes, plànols de tram i guies per a l'espectador, a més de gestionar l'espai i la visibilitat per a patrocinadors i agraïments institucionals.",
+            en: "A specialized project in the automotive sector that combines visual design with informational clarity. The magazine systematically integrates official schedules, maps, stage plans, and spectator guides, while also managing layout and visibility for sponsors and institutional acknowledgments.",
+            es: "Un proyecto especializado en el sector del motor que combina el diseño visual con la claridad informativa. La revista integra de manera estructurada los horarios oficiales, mapas, planos de tramo y guías para el espectador, además de gestionar el espacio y la visibilidad para patrocinadores y agradecimientos institucionales."
+        },
+        gallery: [
+            "/testpage/rally_thumbnail.webp"
+        ],
+        client: "Biela Club Manresa"
     },
     { 
         id: 1, 
@@ -782,6 +803,78 @@ export default function Portfolio() {
                                                 )}
                                             </div>
                                         )}
+                                    </div>
+                                )}
+
+                                {selectedProject.layoutType === 6 && (
+                                    /* Type 6: Custom Case Study layout (Ral·li 2000 Viratges - Single Image) */
+                                    <div className="flex flex-col gap-8">
+                                        {/* 1. Top Section: Two-Column Split (1:1 Main Image & Project Info) */}
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+                                            {/* Left Column: Main Image strictly locked to 1:1 square ratio */}
+                                            <div className="relative aspect-square w-full rounded-2xl overflow-hidden border border-white/10 bg-neutral-900 shadow-2xl">
+                                                <Image
+                                                    src={selectedProject.image}
+                                                    alt={selectedProject.title}
+                                                    fill
+                                                    className="object-cover rounded-xl"
+                                                    sizes="(max-width: 768px) 100vw, 50vw"
+                                                    priority
+                                                />
+                                            </div>
+
+                                            {/* Right Column: Project Info & Title */}
+                                            <div className="flex flex-col gap-4">
+                                                <div className="flex flex-col gap-1 pr-12">
+                                                    <span className="text-xs font-mono uppercase tracking-[0.2em] text-[#863ecc]">
+                                                        [ {selectedProject.category} ]
+                                                    </span>
+                                                    <h2 className="text-3xl md:text-4xl font-black uppercase tracking-tight text-white mt-1">
+                                                        {selectedProject.title}
+                                                    </h2>
+                                                </div>
+
+                                                {selectedProject.headline && (
+                                                    <p className="text-base md:text-lg font-medium text-gray-200 leading-snug pt-3 border-t border-white/10">
+                                                        {selectedProject.headline[language]}
+                                                    </p>
+                                                )}
+
+                                                {/* Metadata */}
+                                                <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-5 mt-2 flex flex-col gap-3">
+                                                    {selectedProject.client && (
+                                                        <div className="flex flex-col gap-1 border-b border-white/5 pb-2.5">
+                                                            <span className="text-[10px] font-mono text-gray-500 uppercase tracking-wider">
+                                                                {language === "en" ? "Client" : "Client"}
+                                                            </span>
+                                                            <span className="text-sm font-semibold text-white">
+                                                                {selectedProject.client}
+                                                            </span>
+                                                        </div>
+                                                    )}
+                                                    <div className="flex flex-col gap-1">
+                                                        <span className="text-[10px] font-mono text-gray-500 uppercase tracking-wider">
+                                                            {language === "en" ? "Services" : "Serveis"}
+                                                        </span>
+                                                        <span className="text-xs text-gray-300">
+                                                            {language === "en"
+                                                                ? "Editorial Design, Visual Layout & Information Architecture"
+                                                                : "Disseny Editorial, Maquetació Visual i Arquitectura de la Informació"}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* 2. Middle Section: Full-Width Case Study Text */}
+                                        <div className="w-full my-4 pt-8 border-t border-white/10 flex flex-col gap-3">
+                                            <h4 className="text-xs uppercase tracking-widest text-[#863ecc] font-bold">
+                                                {language === "en" ? "Case Study" : "Estudi de Cas"}
+                                            </h4>
+                                            <p className="text-gray-300 text-base md:text-lg leading-relaxed max-w-none">
+                                                {selectedProject.description[language]}
+                                            </p>
+                                        </div>
                                     </div>
                                 )}
                             </div>
