@@ -366,7 +366,7 @@ export default function Portfolio() {
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={() => setSelectedProject(null)}
-                        className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 md:p-10"
+                        className="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4 md:p-10"
                     >
                         <motion.div
                             initial={{ scale: 0.95, y: 20 }}
@@ -387,14 +387,16 @@ export default function Portfolio() {
                             </button>
 
                             {/* Header */}
-                            <div className="flex flex-col gap-1 pr-12">
-                                <span className="text-xs font-mono uppercase tracking-[0.2em] text-[#863ecc]">
-                                    {selectedProject.category}
-                                </span>
-                                <h2 className="text-3xl md:text-4xl font-black uppercase tracking-tight text-white">
-                                    {selectedProject.title}
-                                </h2>
-                            </div>
+                            {selectedProject.layoutType !== 4 && (
+                                <div className="flex flex-col gap-1 pr-12">
+                                    <span className="text-xs font-mono uppercase tracking-[0.2em] text-[#863ecc]">
+                                        {selectedProject.category}
+                                    </span>
+                                    <h2 className="text-3xl md:text-4xl font-black uppercase tracking-tight text-white">
+                                        {selectedProject.title}
+                                    </h2>
+                                </div>
+                            )}
 
                             {/* Layout Content */}
                             <div className="flex flex-col gap-6">
@@ -508,98 +510,109 @@ export default function Portfolio() {
                                 {selectedProject.layoutType === 4 && (
                                     /* Type 4: Custom Case Study layout (La Fonda de la Rambla Nova) */
                                     <div className="flex flex-col gap-8">
-                                        {/* Headline / Title Subheading */}
-                                        {selectedProject.headline && (
-                                            <p className="text-lg md:text-xl font-medium text-gray-200 leading-relaxed border-b border-white/10 pb-6">
-                                                {selectedProject.headline[language]}
-                                            </p>
-                                        )}
+                                        {/* 1. Top Section: Two-Column Split (1:1 Main Image & Project Info) */}
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+                                            {/* Left Column: Main Image strictly locked to 1:1 square ratio */}
+                                            <div className="relative aspect-square w-full rounded-2xl overflow-hidden border border-white/10 bg-neutral-900 shadow-2xl">
+                                                <Image
+                                                    src={selectedProject.gallery?.[0] || selectedProject.image}
+                                                    alt={`${selectedProject.title} main screenshot`}
+                                                    fill
+                                                    className="object-cover rounded-xl"
+                                                    sizes="(max-width: 768px) 100vw, 50vw"
+                                                    priority
+                                                />
+                                            </div>
 
-                                        {/* Image Gallery */}
-                                        <div className="flex flex-col gap-6">
-                                            {/* Image 1 (Main/First): Exact thumbnail mockup */}
-                                            {selectedProject.gallery?.[0] && (
-                                                <div className="relative w-full aspect-video md:aspect-[16/9] rounded-2xl overflow-hidden border border-white/10 bg-neutral-900 shadow-2xl">
-                                                    <Image
-                                                        src={selectedProject.gallery[0]}
-                                                        alt={`${selectedProject.title} main screenshot`}
-                                                        fill
-                                                        className="object-cover"
-                                                        sizes="100vw"
-                                                        priority
-                                                    />
+                                            {/* Right Column: Project Info & Title */}
+                                            <div className="flex flex-col gap-4">
+                                                <div className="flex flex-col gap-1 pr-12">
+                                                    <span className="text-xs font-mono uppercase tracking-[0.2em] text-[#863ecc]">
+                                                        [ {selectedProject.category} ]
+                                                    </span>
+                                                    <h2 className="text-3xl md:text-4xl font-black uppercase tracking-tight text-white mt-1">
+                                                        {selectedProject.title}
+                                                    </h2>
                                                 </div>
-                                            )}
 
-                                            {/* Images 2 & 3 (Detailed/Vertical Grid) */}
-                                            {selectedProject.gallery && selectedProject.gallery.length > 1 && (
-                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-center">
-                                                    {/* Vertical Image 1: Strictly locked to 1:1 square aspect ratio */}
+                                                {selectedProject.headline && (
+                                                    <p className="text-base md:text-lg font-medium text-gray-200 leading-snug pt-3 border-t border-white/10">
+                                                        {selectedProject.headline[language]}
+                                                    </p>
+                                                )}
+
+                                                {/* Metadata */}
+                                                <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-5 mt-2 flex flex-col gap-3">
+                                                    {selectedProject.client && (
+                                                        <div className="flex flex-col gap-1 border-b border-white/5 pb-2.5">
+                                                            <span className="text-[10px] font-mono text-gray-500 uppercase tracking-wider">
+                                                                {language === "en" ? "Client" : "Client"}
+                                                            </span>
+                                                            <span className="text-sm font-semibold text-white">
+                                                                {selectedProject.client}
+                                                            </span>
+                                                        </div>
+                                                    )}
+                                                    <div className="flex flex-col gap-1">
+                                                        <span className="text-[10px] font-mono text-gray-500 uppercase tracking-wider">
+                                                            {language === "en" ? "Services" : "Serveis"}
+                                                        </span>
+                                                        <span className="text-xs text-gray-300">
+                                                            {language === "en"
+                                                                ? "Web Design & Custom Digital Experience"
+                                                                : "Disseny Web i Experiència Digital a Mida"}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* 2. Middle Section: Full-Width Case Study Text */}
+                                        <div className="w-full my-4 pt-8 border-t border-white/10 flex flex-col gap-3">
+                                            <h4 className="text-xs uppercase tracking-widest text-[#863ecc] font-bold">
+                                                {language === "en" ? "Case Study" : "Estudi de Cas"}
+                                            </h4>
+                                            <p className="text-gray-300 text-base md:text-lg leading-relaxed max-w-none">
+                                                {selectedProject.description[language]}
+                                            </p>
+                                        </div>
+
+                                        {/* 3. Bottom Section: Secondary Gallery (Equal Proportions Rule) */}
+                                        {selectedProject.gallery && selectedProject.gallery.length > 1 && (
+                                            <div className="w-full pt-8 border-t border-white/10 flex flex-col gap-4">
+                                                <h4 className="text-xs uppercase tracking-widest text-[#863ecc] font-bold">
+                                                    {language === "en" ? "Project Details" : "Detalls del Projecte"}
+                                                </h4>
+
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-center w-full">
+                                                    {/* Secondary Image 1 (aspect-square 1:1) */}
                                                     {selectedProject.gallery[1] && (
                                                         <div className="relative aspect-square w-full rounded-2xl overflow-hidden border border-white/10 bg-neutral-900 shadow-lg">
                                                             <Image
                                                                 src={selectedProject.gallery[1]}
-                                                                alt={`${selectedProject.title} detail square`}
+                                                                alt={`${selectedProject.title} detail 1`}
                                                                 fill
-                                                                className="object-cover"
+                                                                className="object-cover transition-transform duration-500 hover:scale-105"
                                                                 sizes="(max-width: 768px) 100vw, 50vw"
                                                             />
                                                         </div>
                                                     )}
 
-                                                    {/* Vertical Image 2: Locked to 3:4 vertical ratio */}
+                                                    {/* Secondary Image 2 (aspect-square 1:1 for equal proportions) */}
                                                     {selectedProject.gallery[2] && (
-                                                        <div className="relative aspect-[3/4] w-full rounded-2xl overflow-hidden border border-white/10 bg-neutral-900 shadow-lg">
+                                                        <div className="relative aspect-square w-full rounded-2xl overflow-hidden border border-white/10 bg-neutral-900 shadow-lg">
                                                             <Image
                                                                 src={selectedProject.gallery[2]}
-                                                                alt={`${selectedProject.title} detail vertical`}
+                                                                alt={`${selectedProject.title} detail 2`}
                                                                 fill
-                                                                className="object-cover"
+                                                                className="object-cover transition-transform duration-500 hover:scale-105"
                                                                 sizes="(max-width: 768px) 100vw, 50vw"
                                                             />
                                                         </div>
                                                     )}
                                                 </div>
-                                            )}
-                                        </div>
-
-                                        {/* Description & Credits Info Grid */}
-                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-6 border-t border-white/10">
-                                            {/* Description (2 cols) */}
-                                            <div className="md:col-span-2 flex flex-col gap-3">
-                                                <h4 className="text-xs uppercase tracking-widest text-[#863ecc] font-bold">
-                                                    {language === "en" ? "Overview" : "Resum"}
-                                                </h4>
-                                                <p className="text-gray-300 text-base leading-relaxed">
-                                                    {selectedProject.description[language]}
-                                                </p>
                                             </div>
-
-                                            {/* Info Card (1 col) */}
-                                            <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6 flex flex-col gap-4">
-                                                <h4 className="text-xs uppercase tracking-widest text-[#863ecc] font-bold">
-                                                    {language === "en" ? "Project Info" : "Informació del Projecte"}
-                                                </h4>
-                                                {selectedProject.client && (
-                                                    <div className="flex flex-col gap-1 border-b border-white/5 pb-3">
-                                                        <span className="text-[10px] font-mono text-gray-500 uppercase tracking-wider">
-                                                            {language === "en" ? "Client" : "Client"}
-                                                        </span>
-                                                        <span className="text-sm font-semibold text-white">
-                                                            {selectedProject.client}
-                                                        </span>
-                                                    </div>
-                                                )}
-                                                <div className="flex flex-col gap-1">
-                                                    <span className="text-[10px] font-mono text-gray-500 uppercase tracking-wider">
-                                                        {language === "en" ? "Category" : "Categoria"}
-                                                    </span>
-                                                    <span className="text-xs text-gray-300">
-                                                        {selectedProject.category}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </div>
+                                        )}
                                     </div>
                                 )}
                             </div>
