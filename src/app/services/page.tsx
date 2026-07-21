@@ -24,6 +24,7 @@ const HIDE_SCROLLBAR_CSS = `
 `;
 
 interface MobileRevealItemProps {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     service: any;
     index: number;
     parentActiveIndex: number;
@@ -575,7 +576,6 @@ export default function ServicesPage() {
                     className="relative w-full max-w-5xl mx-auto flex flex-col px-6 sm:px-12 md:px-16 bg-[#000000] pt-6"
                 >
                     {TECHNICAL_SERVICES.map((tech, index) => {
-                        const isCurrent = index === activeTechIndex;
                         const isPassed = index < activeTechIndex;
 
                         // Inverted Z-Index Back-to-Front stack hierarchy (1 to 5):

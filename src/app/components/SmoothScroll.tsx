@@ -21,6 +21,7 @@ function LenisWindowBridge() {
 export default function SmoothScroll({ children }: { children: ReactNode }) {
     const [isMobile, setIsMobile] = useState(false);
     const [mounted, setMounted] = useState(false);
+    const [shouldEnableLenis, setShouldEnableLenis] = useState(false);
 
     useEffect(() => {
         const check = () => setIsMobile(window.innerWidth < 768);
@@ -28,16 +29,28 @@ export default function SmoothScroll({ children }: { children: ReactNode }) {
         // eslint-disable-next-line react-hooks/set-state-in-effect
         setMounted(true);
         window.addEventListener("resize", check);
-        return () => window.removeEventListener("resize", check);
+
+        // Defer Lenis initialization until idle / main thread clears FCP
+        let idleCallbackId: number;
+        let timeoutId: ReturnType<typeof setTimeout>;
+
+        if ("requestIdleCallback" in window) {
+            idleCallbackId = window.requestIdleCallback(() => setShouldEnableLenis(true), { timeout: 2000 });
+        } else {
+            timeoutId = setTimeout(() => setShouldEnableLenis(true), 200);
+        }
+
+        return () => {
+            window.removeEventListener("resize", check);
+            if (idleCallbackId && "cancelIdleCallback" in window) {
+                window.cancelIdleCallback(idleCallbackId);
+            }
+            if (timeoutId) clearTimeout(timeoutId);
+        };
     }, []);
 
-    // SSR: render children bare until hydrated
-    if (!mounted) return <>{children}</>;
-
-    // MOBILE: zero JS overhead — native iOS Safari scroll handles everything.
-    // No Lenis, no touch listeners, no preventDefault. The browser momentum
-    // scroll and -webkit-overflow-scrolling:touch in globals.css take over.
-    if (isMobile) return <>{children}</>;
+    // SSR or before idle deferral or Mobile: render bare children until deferred activation
+    if (!mounted || isMobile || !shouldEnableLenis) return <>{children}</>;
 
     // DESKTOP only: Lenis smooth-scroll wrapper
     return (

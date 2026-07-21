@@ -1,6 +1,8 @@
-"use client";
+import dynamic from "next/dynamic";
 
-import Contact from "../components/Contact";
+const Contact = dynamic(() => import("../components/Contact"), {
+    loading: () => <div className="min-h-screen bg-black" />,
+});
 
 export default function ContactPage() {
     return (

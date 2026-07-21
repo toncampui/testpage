@@ -36,7 +36,7 @@ export default function NotFound() {
                     href="/"
                     className="inline-block px-8 py-4 border border-white/30 text-white font-bold text-xs uppercase tracking-[0.25em] transition-all duration-300 hover:bg-white hover:text-black hover:border-white hover:shadow-[0_0_25px_rgba(255,255,255,0.2)] cursor-pointer"
                 >
-                    Tornar a l'inici
+                    Tornar a l&apos;inici
                 </Link>
             </motion.div>
         </div>
