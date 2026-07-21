@@ -15,7 +15,8 @@ interface Project {
     category: Category;
     image: string;
     isVideo?: boolean;
-    layoutType: 1 | 2 | 3;
+    layoutType: 1 | 2 | 3 | 4;
+    headline?: { en: string; ca: string; es: string };
     description: { en: string; ca: string; es: string };
     gallery?: string[];
     client?: string;
@@ -23,6 +24,29 @@ interface Project {
 }
 
 const allProjects: Project[] = [
+    {
+        id: 0,
+        title: "La Fonda de la Rambla Nova",
+        category: "Design",
+        image: "/testpage/lafonda_thumbnail.webp",
+        layoutType: 4,
+        headline: {
+            ca: "Disseny web integral i experiència digital a mida per a un nou referent gastronòmic a Tarragona.",
+            en: "Comprehensive web design and custom digital experience for a new gastronomic benchmark in Tarragona.",
+            es: "Diseño web integral y experiencia digital a medida para un nuevo referente gastronómico en Tarragona."
+        },
+        description: {
+            ca: "Creació des de zero de la nova plataforma web per a La Fonda de la Rambla Nova, dissenyada per reflectir l'essència del restaurant i facilitar la connexió amb els clients. El projecte inclou una presentació visual i cuidada de la carta i els menús, juntament amb un sistema de reserves online intuïtiu que simplifica al màxim el procés per al comensal. Una solució digital funcional i elegant que reforça la presència de marca al sector de la restauració.",
+            en: "Creation from scratch of the new web platform for La Fonda de la Rambla Nova, designed to reflect the essence of the restaurant and facilitate connection with customers. The project includes a careful visual presentation of the menu, along with an intuitive online reservation system that simplifies the process for the diner as much as possible. A functional and elegant digital solution that reinforces brand presence in the restaurant sector.",
+            es: "Creación desde cero de the nueva plataforma web para La Fonda de la Rambla Nova, diseñada para reflejar la esencia del restaurante y facilitar la conexión con los clientes. El proyecto incluye una presentación visual y cuidada de la carta y los menús, junto con un sistema de reservas online intuitivo que simplifica al máximo el proceso para el comensal. Una solución digital funcional y elegante que refuerza la presencia de marca en el sector de la restauración."
+        },
+        gallery: [
+            "/testpage/lafonda_thumbnail.webp",
+            "/testpage/lafonda_detail_1.webp",
+            "/testpage/lafonda_detail_2.webp"
+        ],
+        client: "La Fonda de la Rambla Nova"
+    },
     { 
         id: 1, 
         title: "Track Day Silence", 
@@ -342,7 +366,7 @@ export default function Portfolio() {
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={() => setSelectedProject(null)}
-                        className="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4 md:p-10"
+                        className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 md:p-10"
                     >
                         <motion.div
                             initial={{ scale: 0.95, y: 20 }}
@@ -476,6 +500,104 @@ export default function Portfolio() {
                                                         </div>
                                                     </div>
                                                 )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {selectedProject.layoutType === 4 && (
+                                    /* Type 4: Custom Case Study layout (La Fonda de la Rambla Nova) */
+                                    <div className="flex flex-col gap-8">
+                                        {/* Headline / Title Subheading */}
+                                        {selectedProject.headline && (
+                                            <p className="text-lg md:text-xl font-medium text-gray-200 leading-relaxed border-b border-white/10 pb-6">
+                                                {selectedProject.headline[language]}
+                                            </p>
+                                        )}
+
+                                        {/* Image Gallery */}
+                                        <div className="flex flex-col gap-6">
+                                            {/* Image 1 (Main/First): Exact thumbnail mockup */}
+                                            {selectedProject.gallery?.[0] && (
+                                                <div className="relative w-full aspect-video md:aspect-[16/9] rounded-2xl overflow-hidden border border-white/10 bg-neutral-900 shadow-2xl">
+                                                    <Image
+                                                        src={selectedProject.gallery[0]}
+                                                        alt={`${selectedProject.title} main screenshot`}
+                                                        fill
+                                                        className="object-cover"
+                                                        sizes="100vw"
+                                                        priority
+                                                    />
+                                                </div>
+                                            )}
+
+                                            {/* Images 2 & 3 (Detailed/Vertical Grid) */}
+                                            {selectedProject.gallery && selectedProject.gallery.length > 1 && (
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-center">
+                                                    {/* Vertical Image 1: Strictly locked to 1:1 square aspect ratio */}
+                                                    {selectedProject.gallery[1] && (
+                                                        <div className="relative aspect-square w-full rounded-2xl overflow-hidden border border-white/10 bg-neutral-900 shadow-lg">
+                                                            <Image
+                                                                src={selectedProject.gallery[1]}
+                                                                alt={`${selectedProject.title} detail square`}
+                                                                fill
+                                                                className="object-cover"
+                                                                sizes="(max-width: 768px) 100vw, 50vw"
+                                                            />
+                                                        </div>
+                                                    )}
+
+                                                    {/* Vertical Image 2: Locked to 3:4 vertical ratio */}
+                                                    {selectedProject.gallery[2] && (
+                                                        <div className="relative aspect-[3/4] w-full rounded-2xl overflow-hidden border border-white/10 bg-neutral-900 shadow-lg">
+                                                            <Image
+                                                                src={selectedProject.gallery[2]}
+                                                                alt={`${selectedProject.title} detail vertical`}
+                                                                fill
+                                                                className="object-cover"
+                                                                sizes="(max-width: 768px) 100vw, 50vw"
+                                                            />
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* Description & Credits Info Grid */}
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-6 border-t border-white/10">
+                                            {/* Description (2 cols) */}
+                                            <div className="md:col-span-2 flex flex-col gap-3">
+                                                <h4 className="text-xs uppercase tracking-widest text-[#863ecc] font-bold">
+                                                    {language === "en" ? "Overview" : "Resum"}
+                                                </h4>
+                                                <p className="text-gray-300 text-base leading-relaxed">
+                                                    {selectedProject.description[language]}
+                                                </p>
+                                            </div>
+
+                                            {/* Info Card (1 col) */}
+                                            <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6 flex flex-col gap-4">
+                                                <h4 className="text-xs uppercase tracking-widest text-[#863ecc] font-bold">
+                                                    {language === "en" ? "Project Info" : "Informació del Projecte"}
+                                                </h4>
+                                                {selectedProject.client && (
+                                                    <div className="flex flex-col gap-1 border-b border-white/5 pb-3">
+                                                        <span className="text-[10px] font-mono text-gray-500 uppercase tracking-wider">
+                                                            {language === "en" ? "Client" : "Client"}
+                                                        </span>
+                                                        <span className="text-sm font-semibold text-white">
+                                                            {selectedProject.client}
+                                                        </span>
+                                                    </div>
+                                                )}
+                                                <div className="flex flex-col gap-1">
+                                                    <span className="text-[10px] font-mono text-gray-500 uppercase tracking-wider">
+                                                        {language === "en" ? "Category" : "Categoria"}
+                                                    </span>
+                                                    <span className="text-xs text-gray-300">
+                                                        {selectedProject.category}
+                                                    </span>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
