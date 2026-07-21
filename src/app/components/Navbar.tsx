@@ -246,7 +246,7 @@ export default function Navbar() {
         <>
             <nav
                 style={{
-                    zIndex: 10000,
+                    zIndex: 40,
                     transform: "translateZ(0)",
                     WebkitTransform: "translateZ(0)",
                     backgroundColor: isTransparent ? "transparent" : "#000000",
