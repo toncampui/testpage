@@ -93,7 +93,9 @@ export default function Home() {
                             alt="Toni Camacho - Visual Creator"
                             fill
                             className="object-cover transition-transform duration-1000 group-hover:scale-105"
-                            sizes="(max-w-768px) 100vw, 40vw"
+                            sizes="(max-width: 768px) 100vw, 40vw"
+                            onContextMenu={(e) => e.preventDefault()}
+                            draggable={false}
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent pointer-events-none" />
                     </motion.div>

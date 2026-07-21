@@ -323,6 +323,8 @@ export default function ServicesPage() {
                                 className="object-cover object-center"
                                 sizes="100vw"
                                 priority
+                                onContextMenu={(e) => e.preventDefault()}
+                                draggable={false}
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/15 to-transparent pointer-events-none" />
                         </motion.div>
@@ -427,8 +429,10 @@ export default function ServicesPage() {
                                             transform: `translateY(${desktopParallaxY}px)`,
                                             willChange: "transform",
                                         }}
-                                        sizes="(max-w-768px) 100vw, 40vw"
+                                        sizes="(max-width: 768px) 100vw, 40vw"
                                         priority
+                                        onContextMenu={(e) => e.preventDefault()}
+                                        draggable={false}
                                     />
 
                                     {/* Vignette overlay */}
@@ -541,6 +545,8 @@ export default function ServicesPage() {
                                         className="object-cover w-full h-full"
                                         sizes="100vw"
                                         priority
+                                        onContextMenu={(e) => e.preventDefault()}
+                                        draggable={false}
                                     />
 
                                     {/* Vignette overlay */}
@@ -635,6 +641,8 @@ export default function ServicesPage() {
                                                 fill
                                                 className="object-cover object-center"
                                                 sizes="(max-width: 768px) 90vw, 40vw"
+                                                onContextMenu={(e) => e.preventDefault()}
+                                                draggable={false}
                                             />
                                         </div>
                                     </div>

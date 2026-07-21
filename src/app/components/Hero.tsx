@@ -25,6 +25,8 @@ export default function Hero() {
                     alt="Background Texture"
                     fill
                     className="object-cover opacity-20"
+                    onContextMenu={(e) => e.preventDefault()}
+                    draggable={false}
                 />
                 <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-brand-violet/10 rounded-full blur-[120px] animate-pulse" />
                 <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-brand-purple/10 rounded-full blur-[150px] animate-pulse delay-700" />

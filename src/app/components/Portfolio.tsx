@@ -384,6 +384,8 @@ export default function Portfolio() {
                                 fill
                                 className="object-cover transition-transform duration-700 group-hover:scale-105 opacity-80 group-hover:opacity-100"
                                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                onContextMenu={(e) => e.preventDefault()}
+                                draggable={false}
                             />
 
                             {/* Video Indicator */}
@@ -470,6 +472,8 @@ export default function Portfolio() {
                                                             fill
                                                             className="object-cover transition-transform duration-500 hover:scale-105"
                                                             sizes="(max-w-768px) 100vw, 30vw"
+                                                            onContextMenu={(e) => e.preventDefault()}
+                                                            draggable={false}
                                                         />
                                                     </div>
                                                 ))}
@@ -491,6 +495,8 @@ export default function Portfolio() {
                                                     className="object-cover"
                                                     sizes="100vw"
                                                     priority
+                                                    onContextMenu={(e) => e.preventDefault()}
+                                                    draggable={false}
                                                 />
                                             </div>
                                             <p className="text-gray-300 text-base leading-relaxed max-w-3xl">
@@ -512,6 +518,8 @@ export default function Portfolio() {
                                                             fill
                                                             className="object-cover"
                                                             sizes="(max-w-768px) 100vw, 30vw"
+                                                            onContextMenu={(e) => e.preventDefault()}
+                                                            draggable={false}
                                                         />
                                                     </div>
                                                 ))}
@@ -579,6 +587,8 @@ export default function Portfolio() {
                                                         className="object-cover rounded-xl"
                                                         sizes="(max-width: 768px) 100vw, 50vw"
                                                         priority
+                                                        onContextMenu={(e) => e.preventDefault()}
+                                                        draggable={false}
                                                     />
                                                 </div>
 
@@ -652,6 +662,8 @@ export default function Portfolio() {
                                                                     fill
                                                                     className="object-cover transition-transform duration-500 hover:scale-105"
                                                                     sizes="(max-width: 768px) 100vw, 50vw"
+                                                                    onContextMenu={(e) => e.preventDefault()}
+                                                                    draggable={false}
                                                                 />
                                                             </div>
                                                         )}
@@ -665,6 +677,8 @@ export default function Portfolio() {
                                                                     fill
                                                                     className="object-cover transition-transform duration-500 hover:scale-105"
                                                                     sizes="(max-width: 768px) 100vw, 50vw"
+                                                                    onContextMenu={(e) => e.preventDefault()}
+                                                                    draggable={false}
                                                                 />
                                                             </div>
                                                         )}
@@ -688,6 +702,8 @@ export default function Portfolio() {
                                                     className="object-cover rounded-xl"
                                                     sizes="(max-width: 768px) 100vw, 50vw"
                                                     priority
+                                                    onContextMenu={(e) => e.preventDefault()}
+                                                    draggable={false}
                                                 />
                                             </div>
 
@@ -764,6 +780,8 @@ export default function Portfolio() {
                                                                 fill
                                                                 className="object-cover"
                                                                 sizes="100vw"
+                                                                onContextMenu={(e) => e.preventDefault()}
+                                                                draggable={false}
                                                             />
                                                         </div>
                                                     </div>
@@ -784,6 +802,8 @@ export default function Portfolio() {
                                                                         fill
                                                                         className="object-cover transition-transform duration-500 hover:scale-105"
                                                                         sizes="(max-width: 768px) 100vw, 50vw"
+                                                                        onContextMenu={(e) => e.preventDefault()}
+                                                                        draggable={false}
                                                                     />
                                                                 </div>
                                                             )}
@@ -795,6 +815,8 @@ export default function Portfolio() {
                                                                         fill
                                                                         className="object-cover transition-transform duration-500 hover:scale-105"
                                                                         sizes="(max-width: 768px) 100vw, 50vw"
+                                                                        onContextMenu={(e) => e.preventDefault()}
+                                                                        draggable={false}
                                                                     />
                                                                 </div>
                                                             )}
@@ -820,6 +842,8 @@ export default function Portfolio() {
                                                     className="object-cover rounded-xl"
                                                     sizes="(max-width: 768px) 100vw, 50vw"
                                                     priority
+                                                    onContextMenu={(e) => e.preventDefault()}
+                                                    draggable={false}
                                                 />
                                             </div>
 
