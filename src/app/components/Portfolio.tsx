@@ -16,7 +16,7 @@ interface Project {
     category: Category;
     image: string;
     isVideo?: boolean;
-    layoutType: 1 | 2 | 3 | 4;
+    layoutType: 1 | 2 | 3 | 4 | 5;
     headline?: { en: string; ca: string; es: string };
     description: { en: string; ca: string; es: string };
     gallery?: string[];
@@ -47,6 +47,30 @@ const allProjects: Project[] = [
             "/testpage/lafonda_detail_2.webp"
         ],
         client: "La Fonda de la Rambla Nova"
+    },
+    {
+        id: 14,
+        title: "Hotel La Sagrera",
+        category: "Design",
+        image: "/testpage/sagrera_thumbnail.webp",
+        layoutType: 5,
+        headline: {
+            ca: "Identitat de marca, disseny editorial i reportatge fotogràfic integral per a l'Hotel La Sagrera.",
+            en: "Brand identity, editorial design, and comprehensive photographic report for Hotel La Sagrera.",
+            es: "Identidad de marca, diseño editorial y reportaje fotográfico integral para el Hotel La Sagrera."
+        },
+        description: {
+            ca: "El treball va incloure la creació del nou logotip a partir de les directrius i idees del client, i el disseny complet d'un llibret promocional per a l'establiment. A més, es va dur a terme la producció fotogràfica de les habitacions i la cobertura del dia de la inauguració.",
+            en: "The work included the creation of the new logo based on the client's guidelines and ideas, and the complete design of a promotional booklet for the establishment. In addition, photographic production of the rooms and coverage of the opening day were carried out.",
+            es: "El trabajo incluyó la creación del nuevo logotipo a partir de las directrices e ideas del cliente, y el diseño completo de un folleto promocional para el establecimiento. Además, se llevó a cabo la producción fotográfica de las habitaciones y la cobertura del día de la inauguración."
+        },
+        gallery: [
+            "/testpage/sagrera_thumbnail.webp",
+            "/testpage/sagrera_booklet.webp",
+            "/testpage/sagrera_opening_1.webp",
+            "/testpage/sagrera_opening_2.webp"
+        ],
+        client: "Hotel La Sagrera"
     },
     { 
         id: 1, 
@@ -628,7 +652,139 @@ export default function Portfolio() {
                                             )}
                                         </div>
                                     )}
-                                </div>
+
+                                {selectedProject.layoutType === 5 && (
+                                    /* Type 5: Custom Case Study layout (Hotel La Sagrera) */
+                                    <div className="flex flex-col gap-8">
+                                        {/* 1. Top Section: Two-Column Split (1:1 Main Image & Project Info) */}
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+                                            {/* Left Column: Main Image strictly locked to 1:1 square ratio */}
+                                            <div className="relative aspect-square w-full rounded-2xl overflow-hidden border border-white/10 bg-neutral-900 shadow-2xl">
+                                                <Image
+                                                    src={selectedProject.gallery?.[0] || selectedProject.image}
+                                                    alt={`${selectedProject.title} logo`}
+                                                    fill
+                                                    className="object-cover rounded-xl"
+                                                    sizes="(max-width: 768px) 100vw, 50vw"
+                                                    priority
+                                                />
+                                            </div>
+
+                                            {/* Right Column: Project Info & Title */}
+                                            <div className="flex flex-col gap-4">
+                                                <div className="flex flex-col gap-1 pr-12">
+                                                    <span className="text-xs font-mono uppercase tracking-[0.2em] text-[#863ecc]">
+                                                        [ {selectedProject.category} ]
+                                                    </span>
+                                                    <h2 className="text-3xl md:text-4xl font-black uppercase tracking-tight text-white mt-1">
+                                                        {selectedProject.title}
+                                                    </h2>
+                                                </div>
+
+                                                {selectedProject.headline && (
+                                                    <p className="text-base md:text-lg font-medium text-gray-200 leading-snug pt-3 border-t border-white/10">
+                                                        {selectedProject.headline[language]}
+                                                    </p>
+                                                )}
+
+                                                {/* Metadata */}
+                                                <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-5 mt-2 flex flex-col gap-3">
+                                                    {selectedProject.client && (
+                                                        <div className="flex flex-col gap-1 border-b border-white/5 pb-2.5">
+                                                            <span className="text-[10px] font-mono text-gray-500 uppercase tracking-wider">
+                                                                {language === "en" ? "Client" : "Client"}
+                                                            </span>
+                                                            <span className="text-sm font-semibold text-white">
+                                                                {selectedProject.client}
+                                                            </span>
+                                                        </div>
+                                                    )}
+                                                    <div className="flex flex-col gap-1">
+                                                        <span className="text-[10px] font-mono text-gray-500 uppercase tracking-wider">
+                                                            {language === "en" ? "Services" : "Serveis"}
+                                                        </span>
+                                                        <span className="text-xs text-gray-300">
+                                                            {language === "en"
+                                                                ? "Brand Identity, Editorial Design & Photographic Production"
+                                                                : "Identitat de Marca, Disseny Editorial i Reportatge Fotogràfic"}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* 2. Middle Section: Full-Width Case Study Text */}
+                                        <div className="w-full my-4 pt-8 border-t border-white/10 flex flex-col gap-3">
+                                            <h4 className="text-xs uppercase tracking-widest text-[#863ecc] font-bold">
+                                                {language === "en" ? "Case Study" : "Estudi de Cas"}
+                                            </h4>
+                                            <p className="text-gray-300 text-base md:text-lg leading-relaxed max-w-none">
+                                                {selectedProject.description[language]}
+                                            </p>
+                                        </div>
+
+                                        {/* 3. Bottom Section: Secondary Gallery (Specific Proportions Rules) */}
+                                        {selectedProject.gallery && selectedProject.gallery.length > 1 && (
+                                            <div className="w-full pt-8 border-t border-white/10 flex flex-col gap-6">
+                                                <h4 className="text-xs uppercase tracking-widest text-[#863ecc] font-bold">
+                                                    {language === "en" ? "Project Details" : "Detalls del Projecte"}
+                                                </h4>
+
+                                                {/* Image 1: Booklet in 3:2 landscape aspect ratio */}
+                                                {selectedProject.gallery[1] && (
+                                                    <div className="flex flex-col gap-2">
+                                                        <span className="text-[10px] font-mono text-gray-500 uppercase tracking-wider">
+                                                            {language === "en" ? "Promotional Booklet" : "Llibret Promocional"}
+                                                        </span>
+                                                        <div className="relative aspect-[3/2] w-full rounded-2xl overflow-hidden border border-white/10 bg-neutral-900 shadow-lg">
+                                                            <Image
+                                                                src={selectedProject.gallery[1]}
+                                                                alt={`${selectedProject.title} booklet mockup`}
+                                                                fill
+                                                                className="object-cover"
+                                                                sizes="100vw"
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                {/* Images 2 & 3: Opening Day in exact equal proportions 6:4 (or 3:2 equivalent) horizontal landscape ratio */}
+                                                {selectedProject.gallery.length > 3 && (
+                                                    <div className="flex flex-col gap-3 mt-4">
+                                                        <span className="text-[10px] font-mono text-gray-500 uppercase tracking-wider">
+                                                            {language === "en" ? "Opening Day Event Coverage" : "Cobertura del Dia de la Inauguració"}
+                                                        </span>
+                                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-center w-full">
+                                                            {selectedProject.gallery[2] && (
+                                                                <div className="relative aspect-[6/4] w-full rounded-2xl overflow-hidden border border-white/10 bg-neutral-900 shadow-lg">
+                                                                    <Image
+                                                                        src={selectedProject.gallery[2]}
+                                                                        alt={`${selectedProject.title} opening inside`}
+                                                                        fill
+                                                                        className="object-cover transition-transform duration-500 hover:scale-105"
+                                                                        sizes="(max-width: 768px) 100vw, 50vw"
+                                                                    />
+                                                                </div>
+                                                            )}
+                                                            {selectedProject.gallery[3] && (
+                                                                <div className="relative aspect-[6/4] w-full rounded-2xl overflow-hidden border border-white/10 bg-neutral-900 shadow-lg">
+                                                                    <Image
+                                                                        src={selectedProject.gallery[3]}
+                                                                        alt={`${selectedProject.title} opening outside`}
+                                                                        fill
+                                                                        className="object-cover transition-transform duration-500 hover:scale-105"
+                                                                        sizes="(max-width: 768px) 100vw, 50vw"
+                                                                    />
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
                             </motion.div>
                         </motion.div>
                     )}
